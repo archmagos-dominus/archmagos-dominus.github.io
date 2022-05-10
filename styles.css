@@ -1,0 +1,111 @@
+html, body{
+  height:100%;
+  width: 100%;
+}
+ul {
+ list-style-type: none;
+ margin: 0;
+ padding: 0;
+}
+li{
+  display: inline;
+}
+
+body{
+  background-image: linear-gradient(165deg, rgb(215,137,148) 0%, rgb(100,87,131) 45%, rgb(95,87,131) 50%, rgb(97,171,216) 100%);
+  background-repeat:no-repeat;
+  background-size:contain;
+  width: 1000px;
+}
+#outer{
+  min-height: 100%;
+  position: relative;
+}
+nav{
+  width: auto;
+  height: auto;
+  /*Center*/
+  position: absolute;
+  /* left: 50%;
+  margin: 0 0 0 -325px; */
+  left: 0;
+}
+#main_nav{
+  transition-duration: 0.4s;
+  top: 40%;
+  }
+
+.main_button{
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-variant: small-caps;
+  text-align: center;
+  font-size: 1.5vw;
+  border-style: none;
+  border-radius: 20px;
+  padding: 10px 30px 10px 30px;
+  margin: 25px;
+  box-sizing: border-box;
+  width: 175px;
+  cursor: pointer;
+  transition-duration: 0.4s;
+}
+.main_button:hover{
+  border-style: hidden;
+  border-color: #F3B7E7;
+  border-radius: 20px;
+  box-shadow: 0px 0px 20px 10px #FACAED;
+  background-color: #F3B7E7;
+}
+input[type="submit"] {
+  z-index: -1;
+  background: rgba(0, 0, 0, 0);
+}
+/* input[type="submit"]:active ~ nav{
+  top:10%;
+} */
+#main_content_box{
+  /*Put the container at the bottom of the main div*/
+  position:absolute;                  /* added */
+  bottom:0;                           /* added */
+  left:0;                           /* added */
+  transition-duration: 0.4s;
+  display: block;
+  line-height:0;
+  height: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+#about_container{
+  /*Put the container at the bottom of the main div*/
+  position:absolute;                  /* added */
+  left:0;                           /* added */
+  transition-duration: 0.4s;
+  height: 100%;
+  width: 100%;
+
+}
+#projects_container{
+  /*Put the container at the bottom of the main div*/
+  position:absolute;                  /* added */
+  bottom:0;                           /* added */
+  left:0;                           /* added */
+  transition-duration: 0.4s;
+  display: block;
+  line-height:0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+#contact_container{
+  /*Put the container at the bottom of the main div*/
+  position:absolute;                  /* added */
+  bottom:0;                           /* added */
+  left:0;                           /* added */
+  transition-duration: 0.4s;
+  display: block;
+  line-height:0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
