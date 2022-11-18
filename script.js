@@ -1,11 +1,8 @@
 var centerX, centerY;
-var abt_click = false;
-var cnt_click = false;
-var prj_click = false;
-var clicked = false;
+var abt_click, cnt_click, prj_click, clicked = false;
 
 function ShowDivInCenter(){
-  divWidth = 815;
+  divWidth = 750;
   divHeight = 100;
   divId = 'main_nav'; // id of the div that you want to show in center
 
@@ -45,7 +42,14 @@ function abt() {
   if (!clicked) {
     //raise the ALL container
     document.getElementById("main_nav").style.top = "5%";
-    document.getElementById("main_content_box").style.height = "70%";
+    document.getElementById("main_content_box").style.height = "80%";
+    document.getElementById("main_content_box").style.width = "100%";
+    //raise about container
+    document.getElementById("about_container").style.width = "100%";
+    document.getElementById("about_container").style.height = "80vh";
+    //make sure the other two are hidden away
+    document.getElementById("projects_container").style.width = "0%";
+    document.getElementById("contact_container").style.width = "0%";
     abt_click = true;
     cnt_click = false;
     prj_click = false;
@@ -62,6 +66,7 @@ function abt() {
     } else {
       //bring up the abt caategory and down the other 2
       document.getElementById("about_container").style.width = "100%";
+      document.getElementById("about_container").style.height = "80vh";
       document.getElementById("projects_container").style.width = "0%";
       document.getElementById("contact_container").style.width = "0%";
       abt_click = true;
@@ -73,14 +78,20 @@ function abt() {
 
 function prj() {
   if (!clicked) {
+    //raise the ALL container
     document.getElementById("main_nav").style.top = "5%";
-    document.getElementById("main_content_box").style.height = "70%";
+    document.getElementById("main_content_box").style.height = "80%";
+    document.getElementById("main_content_box").style.width = "100%";
+    //raise about container
+    document.getElementById("projects_container").style.width = "100%";
+    document.getElementById("projects_container").style.height = "80vh";
+    //make sure the other two are hidden away
+    document.getElementById("about_container").style.width = "0%";
+    document.getElementById("contact_container").style.width = "0%";
     abt_click = false;
     cnt_click = false;
     prj_click = true;
     clicked = true;
-    //raise the ALL container
-
   } else {
     if (prj_click){
       document.getElementById("main_nav").style.top = "40%";
@@ -92,6 +103,7 @@ function prj() {
     } else {
       document.getElementById("about_container").style.width = "0%";
       document.getElementById("projects_container").style.width = "100%";
+      document.getElementById("projects_container").style.width = "80vh";
       document.getElementById("contact_container").style.width = "0%";
       abt_click = false;
       cnt_click = false;
@@ -102,14 +114,21 @@ function prj() {
 
 function cnt() {
   if (!clicked) {
+    //raise the ALL container
+    //raise the ALL container
     document.getElementById("main_nav").style.top = "5%";
-    document.getElementById("main_content_box").style.height = "70%";
+    document.getElementById("main_content_box").style.height = "80%";
+    document.getElementById("main_content_box").style.width = "100%";
+    //raise about container
+    document.getElementById("contact_container").style.width = "100%";
+    document.getElementById("contact_container").style.height = "80vh";
+    //make sure the other two are hidden away
+    document.getElementById("about_container").style.width = "0%";
+    document.getElementById("projects_container").style.width = "0%";
     abt_click = false;
     cnt_click = true;
     prj_click = false;
     clicked = true;
-    //raise the ALL container
-
   } else {
     if (cnt_click){
       document.getElementById("main_nav").style.top = "40%";
@@ -122,9 +141,11 @@ function cnt() {
       document.getElementById("about_container").style.width = "0%";
       document.getElementById("projects_container").style.width = "0%";
       document.getElementById("contact_container").style.width = "100%";
+      document.getElementById("contact_container").style.width = "80vh";
       abt_click = false;
       cnt_click = true;
       prj_click = false;
     }
   }
 }
+
