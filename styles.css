@@ -1,40 +1,67 @@
-html, body{
-  height:97vh;
+html{
+  height:100vh;
   width: 100vw;
 }
+
 ul {
  list-style-type: none;
  margin: 0;
  padding: 0;
 }
+
 li{
   display: inline;
 }
 
 body{
-  /*background-image: linear-gradient(180deg, rgb(72,72,72) 0%, rgb(43,43,43) 100%);*/
-  background-color: rgb(54,57,63);
+  background-color: #393D47;
   background-repeat:no-repeat;
   background-size:contain;
   width: 98vw;
+  height: 98vh;
 }
+
+a{
+  text-decoration: none;
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-variant: normal;
+  text-align: center;
+  font-size: 1.25vw;
+  color: rgb(200,205,210);
+  text-shadow: 0 0 1px rgb(185,187,190);
+  transition-duration: 0.25s;
+}
+
+.logos{
+  width: 1vw;
+  height: 1vw;
+}
+
+a:hover{
+  text-decoration: none;
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-variant: normal;
+  text-align: center;
+  font-size: 1.25vw;
+  color: rgb(200,205,210);
+  text-shadow: 0 0 3px rgb(255,255,255);
+}
+
 #outer{
   min-height: 100%;
   position: relative;
 }
+
 nav{
   width: auto;
   height: auto;
-  /*Center*/
-  position: absolute;
-  /* left: 50%;
-  margin: 0 0 0 -325px; */
-  left: 40vw;
 }
+
 #main_nav{
-  transition-duration: 0.4s;
-  /*top: 40%;*/
-  }
+  transition-duration: 0.8s;
+}
 
 .main_button{
   font-family: 'Times New Roman', serif;
@@ -47,12 +74,12 @@ nav{
   padding: 10px 30px 10px 30px;
   margin: 25px;
   box-sizing: border-box;
-  width: 175px;
   cursor: pointer;
   transition-duration: 0.4s;
-  color: rgb(185,187,190);;
-  border-color:rgb(185,187,190);;
+  color: rgb(185,187,190);
+  border-color:rgb(185,187,190);
 }
+
 .main_button:hover{
   border-style: solid;
   border-color: rgb(54,57,63);
@@ -66,58 +93,159 @@ input[type="submit"] {
   z-index: -1;
   background: rgba(0, 0, 0, 0);
 }
-/* input[type="submit"]:active ~ nav{
-  top:10%;
-} */
+
 #main_content_box{
-  /*Put the container at the bottom of the main div*/
-  position:absolute;                  /* added */
-  bottom:0;                           /* added */
-  left:0;                           /* added */
-  transition-duration: 0.4s;
+  position:absolute;
+  bottom:0;       
+  transition-duration: 0.8s;
   display: block;
   line-height:0;
   height: 0;
   overflow: hidden;
-  background-color: rgb(64,68,75);
 }
+
 #about_container{
-  /*Put the container at the bottom of the main div*/
-  position:absolute;                  /* added */
-  left:0;                           /* added */
-  transition-duration: 0.5s;
+  position:absolute;
+  bottom:0;
+  left:0;
+  transition-duration: 0.8s;
   height: 100%;
-  width: 100%;
   display: block;
   overflow: hidden;
-  background-color: rgb(64,68,75);
+  box-sizing: border-box;
 }
+
 #projects_container{
-  /*Put the container at the bottom of the main div*/
-  position:absolute;                  /* added */
-  bottom:0;                           /* added */
-  left:0;                           /* added */
-  transition-duration: 0.4s;
+  position:absolute;
+  bottom:0;
+  left:0;
+  transition-duration: 0.8s;
   display: block;
-  line-height:0;
-  height: 75vh;
-  width: 100%;
+  height: 0%;
+  width: 0%;
   overflow: hidden;
-  background-color: rgb(64,68,75);
 }
+
 #contact_container{
-  /*Put the container at the bottom of the main div*/
-  position:absolute;                  /* added */
-  bottom:0;                           /* added */
-  left:0;                           /* added */
-  transition-duration: 0.4s;
-  display: block;
-  line-height:0;
+  position:absolute;
+  bottom:0;
+  left:0;
+  transition-duration: 0.8s;
   height: 100%;
-  width: 100%;
+  display: block;
   overflow: hidden;
-  background-color: rgb(64,68,75);
+  box-sizing: border-box;
 }
-p{
-  color:rgb(185,187,190);
+
+.visibility_content_about{
+  visibility: hidden;
+  transition-duration: 0.2s;
+}
+
+.visibility_content_projects{
+  visibility: hidden;
+  transition-duration: 0.2s;
+}
+
+.visibility_content_contact{
+  visibility: hidden;
+  transition-duration: 0.2s;
+}
+
+#about_text{
+  display: block;
+  line-height: 2.5vh;
+  overflow: visible;
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-variant: normal;
+  text-align: center;
+  font-size: 1.25vw;
+  color: rgb(185,187,190);
+}
+
+#contact_text{
+  display: block;
+  line-height: 2.5vh;
+  overflow: visible;
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-variant: normal;
+  text-align: center;
+  font-size: 1.25vw;
+  color: rgb(185,187,190);
+}
+
+#project_table{
+  display: block;
+  height: 90%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#project_selector{
+  box-sizing: border-box;
+  width: 15vw;
+  height: 40vh;
+  box-sizing: border-box;
+}
+
+#project_nav_bar{
+  width: inherit;
+  height: 100%;
+  padding: 1vh 1.5vh;
+  cursor: pointer;
+  display: block;
+  box-sizing: border-box;
+}
+
+.projects_button{
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-variant: small-caps;
+  text-align: center;
+  font-size: 1vw;
+  border-style: solid;
+  border-radius: 1vw;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition-duration: 0.4s;
+  background: none;
+  background-color: rgb(185,187,190);
+  color: rgb(54,57,63);
+  border-color:rgb(54,57,63);
+  width: 100%;
+  padding: 2vh 2.5vw;
+  display: inline-block;
+}
+
+.projects_button:hover{
+  border-color: rgb(185,187,190);
+  box-shadow: 0px 0px 0.5vw 0.25vw rgb(54,57,63);
+  background-color: rgb(54,57,63);
+  color: rgb(185,187,190);
+}
+
+#project_display{
+  box-sizing: border-box;
+  width: 65vw;
+  height: inherit;
+  overflow: scroll;
+}
+
+#project_display_container{
+  background-color: rgb(54,57,63);
+  box-sizing: border-box;
+  width: 0%;
+  max-width: 64vw;
+  transition-duration: 0.8s;
+  height: inherit;
+  border: solid 1px red;
+  overflow: scroll;
+}
+
+.current_proj{
+  padding: 3ww;
+  line-height: 2.5vh;
+  visibility: hidden;
 }
