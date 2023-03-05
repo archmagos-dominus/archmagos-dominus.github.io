@@ -29,7 +29,7 @@ a{
   text-align: center;
   font-size: 1.25vw;
   color: rgb(200,205,210);
-  text-shadow: 0 0 1px rgb(185,187,190);
+  text-shadow: 0 0 0.1vw rgb(185,187,190);
   transition-duration: 0.25s;
 }
 
@@ -46,7 +46,7 @@ a:hover{
   text-align: center;
   font-size: 1.25vw;
   color: rgb(200,205,210);
-  text-shadow: 0 0 3px rgb(255,255,255);
+  text-shadow: 0 0 0.3vw rgb(255,255,255);
 }
 
 #outer{
@@ -234,18 +234,45 @@ input[type="submit"] {
 }
 
 #project_display_container{
-  background-color: rgb(54,57,63);
+  background-color: #393D47;
   box-sizing: border-box;
   width: 0%;
   max-width: 64vw;
   transition-duration: 0.8s;
   height: inherit;
-  border: solid 1px red;
   overflow: scroll;
+  padding: 1vh;
 }
 
 .current_proj{
-  padding: 3ww;
   line-height: 2.5vh;
   visibility: hidden;
+}
+
+.project_link{
+  text-decoration: none;
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-variant: normal;
+  text-align: center;
+  font-size: 1vw;
+  color: rgb(54,57,63);
+  text-shadow: 0 0 1px rgb(54,57,63);
+  transition-duration: 0.25s;
+}
+
+.project_link:hover{
+  text-decoration: none;
+  font-family: 'Times New Roman', serif;
+  font-weight: bold;
+  font-variant: normal;
+  text-align: center;
+  font-size: 1vw;
+  color: rgb(200,205,210);
+  text-shadow: 0 0 4px rgb(54,57,63);
+}
+
+.logosp{
+  width: 0.8vw;
+  height: 0.8vw;
 }

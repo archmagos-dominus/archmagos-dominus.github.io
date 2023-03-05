@@ -1,2 +1,2 @@
 # archmagos-dominus.github.io
-Showcasing website
+Showcasing website (still in developement, please wait warmly)

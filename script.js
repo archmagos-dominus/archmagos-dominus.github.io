@@ -13,35 +13,35 @@ const projectsDB = [
     "title": "<b>HourAI</b>/<b>ShanghAI</b> discord chatbot using NLP AI",
     "Summary": `<p style="font-family:sans-serif;">The <b>HourAI</b>/<b>ShanghAI</b> framework offers a quick, easy to setup, reliable and safe way to deploy a robust and efficient AI chatbot on any discord server. It's main purpose is to be as close as possible to state of the art chatbots currently deployed online while also being as cheap as possible to set-up and maintain for a long period of time.</p><p style="font-family:sans-serif;">This system is made up of two separate parts: the discord bot (<b>HourAI</b>) and the natural language processing software (<b>ShanghAI</b>). The main reasons for separation can be condensed down to safety and resource usage. In terms of safety, the split allows the part that requires internet access (<b>HourAI</b>) to be hosted on a different machine from <b>ShanghAI</b>, which will be able to provide inference for <b>HourAI</b> as long as they can communicate on a local network. This approach can be beneficial in any event that might compromise the security of the machine connected to the internet that <b>HourAI</b> runs on, making sure that any malicious activity does not reach <b>ShanghAI</b> (and, most importantly, long term data that the bot might collect from the users). In terms of efficiency and resource usage, <b>ShanghAI</b> is deisgned to provide the complete natural language processing functionality (including inference, fine-tuning and model training) while <b>HourAI</b> is left handling all the rest. This creates a back-end as light as it is possible by making sure the machine used to run inference or training does not have to divert any resouces towards other processing tasks required for the full functionality of this system.</p><p style="font-family:sans-serif;">Now that we have a basic understanding of the <b>HourAI</b>/<b>ShanghAI</b> framework, let us dive deeper and analyse both components in turn, while also noting the way they can be set up depending on your availible resources.</p><p><b>HourAI</b> is the discord bot, tasked with receiving user messages from discord, sanitizing them so that they can be used for inference, storing message content short term for debugging and/or later training and controlling <b>ShanghAI</b>'s functionality directly from discord. It is written in python and while it does have a wide range of task that it needs to complete, it is also the lightest part of this framework. It can run on any machine that is capable of connecting to the internet and has python and <b>HourAI</b>'s required modules installed. Her configuration files are the place where most of the varibles required (both for herself and <b>ShanghAI</b> inference parameters) are found. <b>HourAI</b> is also capable of connecting to cloud based inference solutions in case your current resources do not allow for on-site hosting of a model (the current example assumes you are using HuggingFace but any kind of service can be used with minimal changes to the requests).</p><p style="font-family:sans-serif;">The <b>ShanghAI</b> half of this system has fewer separate processing tasks to concern herself with, however, each of those tasks requires memory and processing power a few orders of magnitude higher than the <b>HourAI</b> part. As such, <b>ShanghAI</b> has been designed with the purpose of being used in self-hosting the model on a dedicated machine, as to allow all the necessary resources to be used exclussively by <b>ShanghAI</b>'s processes. Those processes include inference, taking the sanitized message from <b>HourAI</b> and proving back the response, and the traning of models using it's past conversations as a dataset. <b>ShanghAI</b> seems able to run inference with a system boasting a staggering 4GB of RAM and a mediocre processor, however, the trainig uses up either 16GB of SRAM or 8GB of VRAM, and does require either a fast CPU or a dedicated GPU to perfom this function in an acceptable time frame. That said, I have provided a model that is already trained and ready for use, so even if you do not have acccess to the required hardware for training the model, you can still use the model as is for inference and parameter tuning research.</p>`,
     "demo": "if false leave it alone, if it is a demo uhhh do something",
-    "links": `<p style="font-family:sans-serif;">Useful links for this project:</p><a href="https://github.com/archmagos-dominus/HourAI" style="font-family:sans-serif;">HourAI repository</a><p><a href="https://github.com/archmagos-dominus/ShnaghAI" style="font-family:sans-serif;font-size: 1.25vw;color: rgb(54,57,63);">ShanghAI repository</a></p>`
+    "links": `<p style="font-family:sans-serif;">Useful links for this project:</p><p><a href="https://github.com/archmagos-dominus/HourAI" class="project_link">HourAI repository on <img src="img/github_dark.png" class="logosp">github</a><br><a href="https://github.com/archmagos-dominus/ShnaghAI" class="project_link">ShanghAI repository on <img src="img/github_dark.png" class="logosp">github</a><br><a href ="https://huggingface.co/archmagos/HourAI" class="project_link">HourAI model on <img src="img/hf_dark.png" class="logosp">huggingface</a></p>`
   },
   {
     "id": 1,
     "title": "Driving AI",
-    "Summary": "really cool summary trust me bro",
+    "Summary": ``,
     "demo": "if false leave it alone, if it is a demo uhhh do something",
-    "links": "Liunks to github/hugginface"
+    "links": ``
   },
   {
     "id": 2,
     "title": "Mima Bot",
-    "Summary": "really cool summary trust me bro",
+    "Summary": ``,
     "demo": "if false leave it alone, if it is a demo uhhh do something",
-    "links": "Liunks to github/hugginface"
+    "links": ``
   },
   {
     "id": 3,
     "title": "Celular Automata (both GoL and rule something)",
-    "Summary": "really cool summary trust me bro",
+    "Summary": ``,
     "demo": "if false leave it alone, if it is a demo uhhh do something",
-    "links": "Liunks to github/hugginface"
+    "links": ``
   },
   {
     "id": 4,
     "title": "Danbooru Scraper",
-    "Summary": "really cool summary trust me bro",
+    "Summary": ``,
     "demo": "if false leave it alone, if it is a demo uhhh do something",
-    "links": "Liunks to github/hugginface"
+    "links": ``
   }
 ]
 
@@ -484,7 +484,7 @@ function displayProject(projectID) {
       var projectsDisplayContainerObj = document.getElementById(projectsDisplayContainerID);
       //extend the project container (light bg)
       projectsDisplayContainerObj.style.width = "0%";
-      projectsDisplayContainerObj.style.backgroundColor = "rgb(54,57,63)";
+      projectsDisplayContainerObj.style.backgroundColor = "#393D47";
       //reset the buttons to default
       //iterate through the buttons
       const projectButtonClass = "projects_button";
