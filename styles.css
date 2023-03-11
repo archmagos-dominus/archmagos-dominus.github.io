@@ -14,7 +14,7 @@ li{
 }
 
 body{
-  background-color: #393D47;
+  background-color: rgb(57,61,71);
   background-repeat:no-repeat;
   background-size:contain;
   width: 98vw;
@@ -234,7 +234,7 @@ input[type="submit"] {
 }
 
 #project_display_container{
-  background-color: #393D47;
+  background-color: rgb(57,61,71);
   box-sizing: border-box;
   width: 0%;
   max-width: 64vw;
@@ -259,6 +259,10 @@ input[type="submit"] {
   color: rgb(54,57,63);
   text-shadow: 0 0 1px rgb(54,57,63);
   transition-duration: 0.25s;
+}
+
+.project_paragraph{
+  font-family:sans-serif;
 }
 
 .project_link:hover{
