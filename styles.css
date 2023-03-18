@@ -265,6 +265,11 @@ input[type="submit"] {
   font-family:sans-serif;
 }
 
+.project_paragraph_light{
+  font-family:sans-serif;
+  color: rgb(185,187,190);
+}
+
 .project_link:hover{
   text-decoration: none;
   font-family: 'Times New Roman', serif;
@@ -279,4 +284,62 @@ input[type="submit"] {
 .logosp{
   width: 0.8vw;
   height: 0.8vw;
+}
+
+ /* Chat containers */
+ .container {
+  border: 2px solid rgb(57,61,71);
+  background-color: rgb(185,187,190);
+  border-radius: 5px;
+  margin: 1vw 0;
+  padding-left: 1vw;
+  max-width: 60vw;
+}
+
+/* Darker chat container */
+.darker {
+  border-color: gb(185,187,190);
+  background-color: rgb(57,61,71);
+}
+
+/* Clear floats */
+.container::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Style images */
+.container img {
+  float: left;
+  max-width: 60px;
+  width: 98%;
+  margin-right: 1vw;
+  border-radius: 50%;
+}
+
+#dialog_hourai_box{
+  bottom: 0%;
+  max-width: 60vw;
+  width: 98%;
+}
+
+#text_insert_box{
+  bottom: 0%;
+  max-width: 60vw;
+  width: 98%;
+}
+
+#send_text_button {
+  font-size: 2vh;
+  height: 4vh;
+  width: 10%;
+  float:right;
+}
+
+#message_text_web {
+  font-size: 2vh;
+  height: 4vh;
+  max-width: 60vw;
+  width: 85%;
 }
