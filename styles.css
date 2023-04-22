@@ -343,3 +343,37 @@ input[type="submit"] {
   max-width: 60vw;
   width: 85%;
 }
+
+/* 
+  Scrollbar area since it 
+  seems like in chrome it looks like shit
+  Seriously that was a huge wtf moment*/
+
+  /* width */
+::-webkit-scrollbar {
+  width: thin;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgba(#393939, .7); 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: lighten(#606060, 15);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: lighten(#606060, 30); 
+}
+
+::-webkit-scrollbar-corner{
+  background: rgba(#393939, .7);
+}
+		
+/*
+  I hope the stuff above works for you chromium boys,
+  I'm not gonna install Chromium to test it sorry, not sorry
+  */
