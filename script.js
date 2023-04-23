@@ -12,7 +12,7 @@ const projectsDB = [
     "id": 0,
     "title": `<b>HourAI</b>/<b>ShanghAI</b> discord chatbot using NLP AI`,
     "Summary": `<p class="project_paragraph">The <b>HourAI</b>/<b>ShanghAI</b> framework offers a quick, easy to setup, reliable and safe way to deploy a robust and efficient AI chatbot on any discord server. It's main purpose is to be as close as possible to state of the art chatbots currently deployed online while also being as cheap as possible to set-up and maintain for a long period of time.</p><p class="project_paragraph">This system is made up of two separate parts: the discord bot (<b>HourAI</b>) and the natural language processing software (<b>ShanghAI</b>). The main reasons for separation can be condensed down to safety and resource usage. In terms of safety, the split allows the part that requires internet access (<b>HourAI</b>) to be hosted on a different machine from <b>ShanghAI</b>, which will be able to provide inference for <b>HourAI</b> as long as they can communicate on a local network. This approach can be beneficial in any event that might compromise the security of the machine connected to the internet that <b>HourAI</b> runs on, making sure that any malicious activity does not reach <b>ShanghAI</b> (and, most importantly, long term data that the bot might collect from the users). In terms of efficiency and resource usage, <b>ShanghAI</b> is deisgned to provide the complete natural language processing functionality (including inference, fine-tuning and model training) while <b>HourAI</b> is left handling all the rest. This creates a back-end as light as it is possible by making sure the machine used to run inference or training does not have to divert any resouces towards other processing tasks required for the full functionality of this system.</p><p class="project_paragraph">Now that we have a basic understanding of the <b>HourAI</b>/<b>ShanghAI</b> framework, let us dive deeper and analyse both components in turn, while also noting the way they can be set up depending on your availible resources.</p><p class="project_paragraph"><b>HourAI</b> is the discord bot, tasked with receiving user messages from discord, sanitizing them so that they can be used for inference, storing message content short term for debugging and/or later training and controlling <b>ShanghAI</b>'s functionality directly from discord. It is written in python and while it does have a wide range of task that it needs to complete, it is also the lightest part of this framework. It can run on any machine that is capable of connecting to the internet and has python and <b>HourAI</b>'s required modules installed. Her configuration files are the place where most of the varibles required (both for herself and <b>ShanghAI</b> inference parameters) are found. <b>HourAI</b> is also capable of connecting to cloud based inference solutions in case your current resources do not allow for on-site hosting of a model (the current example assumes you are using HuggingFace but any kind of service can be used with minimal changes to the requests).</p><p class="project_paragraph">The <b>ShanghAI</b> half of this system has fewer separate processing tasks to concern herself with, however, each of those tasks requires memory and processing power a few orders of magnitude higher than the <b>HourAI</b> part. As such, <b>ShanghAI</b> has been designed with the purpose of being used in self-hosting the model on a dedicated machine, as to allow all the necessary resources to be used exclussively by <b>ShanghAI</b>'s processes. Those processes include inference, taking the sanitized message from <b>HourAI</b> and proving back the response, and the traning of models using it's past conversations as a dataset. <b>ShanghAI</b> seems able to run inference with a system boasting a staggering 4GB of RAM and a mediocre processor, however, the trainig uses up either 16GB of SRAM or 8GB of VRAM, and does require either a fast CPU or a dedicated GPU to perfom this function in an acceptable time frame. That said, I have provided a model that is already trained and ready for use, so even if you do not have acccess to the required hardware for training the model, you can still use the model as is for inference and parameter tuning research.</p>`,
-    "demo": `<div id="dialog_hourai_box"></div><div id="text_insert_box"><input placeholder="Write your message here" id="message_text_web"><button id="send_text_button" onclick="sedMessageToHourai()">Send</button></div>`,
+    "demo": `<p class="project_paragraph">Here you can see a simple web demo of the <b>HourAI</b> model.</p><p class="project_paragraph"><b>DISCLAIMER:</b> This demo uses the <b>Hugginface</b> backend, as such any errors or lack of performance is their problem. If you want to see <b>HourAI</b> working alongside <b>ShanghAI</b> you may join the discord server following the links at the bottom of this article.</p><div id="dialog_hourai_box"></div><div id="text_insert_box"><input placeholder="Write your message here" id="message_text_web"><button id="send_text_button" onclick="sedMessageToHourai()">Send</button></div>`,
     "links": `<p class="project_paragraph">Useful links for this project:</p><p class="project_paragraph"><a href="https://github.com/archmagos-dominus/HourAI" class="project_link"> <img src="img/github_dark.png" class="logosp"> HourAI repository on github</a><br><a href="https://github.com/archmagos-dominus/ShnaghAI" class="project_link"> <img src="img/github_dark.png" class="logosp"> ShanghAI repository on github</a><br><a href ="https://huggingface.co/archmagos/HourAI" class="project_link"><img src="img/hf_dark.png" class="logosp"> HourAI model on huggingface</a><br><a href ="https://discord.gg/GdbQJh8VU9" class="project_link"><img src="img/discord_dark.png" class="logosp"> HourAI/ShanghAI in action on development Discord server</a></p>`
   },
   {
@@ -68,6 +68,75 @@ function initializePage() {
 //initialize LANDSCAPE page
 function setupLandscape(screen_width, screen_height) {
 
+
+  //create lanscape page elements
+  const webisteLandscape = `<nav id="main_nav">
+  <li><input type="submit" value="About" class="main_button" onclick="abt()"></li>
+  <li><input type="submit" value="Projects" class="main_button" onclick="prj()"></li>
+  <li><input type="submit" value="Contact" class="main_button" onclick="cnt()"></li>
+</nav>
+<div id="main_content_box">
+  <div id="about_container">
+    <hr class="visibility_content_about">
+    <p id="about_text" class="visibility_content_about">
+      Hello there!<br>Thank you for taking the time to check my portfolio out!<br>I am mostly interested in machine learning
+      and artificial intelligence, but you'll find plenty of other things in my <a href="https://github.com/archmagos-dominus">github repositories</a>. Everything that
+      I make is open-source and free to use on whatever project you're working on.<br>You'll find my most complete projects in
+       the Projects tab, as well as some cool web demos for a few of them. For any questions, bug reports, or just
+       chatting you can find my contact information in it's respective tab.<br><br><br>DISCLAIMER: At the moment I do not take freelance
+       work (no, not even paid). <br>I also do not take any donations for further development of the sofware I create and maintain.
+       <br>If you DO want to support research and development of various tools and software solutions for AI models and their 
+       supporting infrastructure that is fully open source and free to use, you can support my good friends at 
+       <a href="https://hitomi-team.github.io/about/">Lorelei Labs</a>.
+      </p>
+    <hr class="visibility_content_about">
+  </div>
+  <div id="projects_container">
+    <hr class="visibility_content_projects">
+    <table class="visibility_content_projects" id="project_table">
+      <tr>
+        <td id="project_selector">
+          <div id="project_nav_bar">
+            <button class="projects_button" onclick="displayProject(0)">Hourai/Shanghai</button>
+            <button class="projects_button" onclick="displayProject(1)">Mumbai</button>
+            <button class="projects_button" onclick="displayProject(2)">Mima</button>
+            <button class="projects_button" onclick="displayProject(3)">Cellular automata</button>
+            <button class="projects_button" onclick="displayProject(4)">Danbooru Scraper</button>
+          </div>
+        </td>
+        <td id="project_display">
+          <div id="project_display_container">
+            <h3 id="current_project_title" class="current_proj"></h3>
+            <hr class="current_proj">
+            <p id="current_project_summary" class="current_proj"></p>
+            <hr class="current_proj">
+            <div id="current_project_demo" class="current_proj"></div>
+            <hr class="current_proj">
+            <div id="current_project_links" class="current_proj"></div>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <hr class="visibility_content_projects">
+</div>
+<div id="contact_container">
+    <hr class="visibility_content_contact">
+    <p id="contact_text" class="visibility_content_contact">
+      <a href="mailto:drobertc@protonmail.com?subject=Homepage Contact"><img src="img/email.png" class="logos"> E-mail me!</a><br>
+      <a href="https://github.com/archmagos-dominus"><img src="img/github.png" class="logos"> github</a><br>
+      <a href="https://huggingface.co/archmagos"><img src="img/hf.png" class="logos"> hugginface</a><br>
+      <a href="https://discord.gg/GdbQJh8VU9"><img src="img/discord.png" class="logos"> discord invite</a>
+    </p>
+    <hr class="visibility_content_contact">
+</div>
+</div>`;
+
+  //use this for the webiste
+  //necessary to rebuild wesite after switch from landscape to protrait and vicevers
+  //technically I should just make the portrait mode add somethin ON TOP of the website so it won't have to load a new page every time
+  //but
+  //it's not my processor, so me no care hehe
+  document.getElementById("outer").innerHTML = webisteLandscape; 
   /////////////////////////////////////////////////////////////////////////////
   //store ID of the main navigation bar
   
@@ -143,7 +212,12 @@ function setupLandscape(screen_width, screen_height) {
 
 //initialize PORTRAIT page
 function setupPortrait(screen_width, screen_height) {
-  
+  //if the screen is portrait, tell the user to either rotate, or look at the website on a computer, this ain't tik tok
+  //create the new website elements
+  const webistePortrait = '\
+  <p class="main_button">Availible only in landscape mode.</p>\
+  ';
+  document.getElementById("outer").innerHTML = webistePortrait; 
 }
 
 //what to do when the ABOUT button is clicked
@@ -620,7 +694,7 @@ function sedMessageToHourai() {
         hourai_reply = response.error;
         //if there is an eta, store that
         if (response.estimated_time){
-          hourai_reply = hourai_reply + "ETA: " + response.estimated_time;
+          hourai_reply = hourai_reply + " <b>ETA:</b> " + response.estimated_time;
         }
       } else {
         //store generated text
