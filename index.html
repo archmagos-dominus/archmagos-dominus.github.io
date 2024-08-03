@@ -1,81 +1,42 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
-    <title>Primitiae</title>
-    <link rel="stylesheet" href="styles.css" type="text/css">
-    <script type="text/javascript" src="script.js"></script>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-  </head>
-  <body onload='initializePage();' onresize='initializePage();'>
-    <div id="outer">
-      <nav id="main_nav">
-          <li><input type="submit" value="About" class="main_button" onclick="abt()"></li>
-          <li><input type="submit" value="Projects" class="main_button" onclick="prj()"></li>
-          <li><input type="submit" value="Contact" class="main_button" onclick="cnt()"></li>
-      </nav>
-      <div id="main_content_box">
-          <div id="about_container">
-            <hr class="visibility_content_about">
-            <p id="about_text" class="visibility_content_about">
-              Hello there!<br>Thank you for taking the time to check my portfolio out!<br>I am mostly interested in machine learning
-              and artificial intelligence, but you'll find plenty of other things in my <a href="https://github.com/archmagos-dominus">github repositories</a>. Everything that
-              I make is open-source and free to use on whatever project you're working on.<br>You'll find my most complete projects in
-               the Projects tab, as well as some cool web demos for a few of them. For any questions, bug reports, or just
-               chatting you can find my contact information in it's respective tab.<br><br><br>DISCLAIMER: At the moment I do not take freelance
-               work (no, not even paid). <br>I also do not take any donations for further development of the sofware I create and maintain.
-               <br>If you DO want to support research and development of various tools and software solutions for AI models and their 
-               supporting infrastructure that is fully open source and free to use, you can support my good friends at 
-               <a href="https://hitomi-team.github.io/about/">Lorelei Labs</a>.
-              </p>
-            <hr class="visibility_content_about">
-          </div>
-          <div id="projects_container">
-            <hr class="visibility_content_projects">
-            <table class="visibility_content_projects" id="project_table">
-              <tr>
-                <td id="project_selector">
-                  <div id="project_nav_bar">
-                    <button class="projects_button" onclick="displayProject(0)">Hourai/Shanghai</button>
-                    <button class="projects_button" onclick="displayProject(1)">Mumbai</button>
-                    <button class="projects_button" onclick="displayProject(2)">Mima</button>
-                    <button class="projects_button" onclick="displayProject(3)">Cellular automata</button>
-                    <button class="projects_button" onclick="displayProject(4)">Danbooru Scraper</button>
-                  </div>
-                </td>
-                <td id="project_display">
-                  <div id="project_display_container">
-                    <h3 id="current_project_title" class="current_proj"></h3>
-                    <hr class="current_proj">
-                    <p id="current_project_summary" class="current_proj"></p>
-                    <hr class="current_proj">
-                    <div id="current_project_demo" class="current_proj"></div>
-                    <hr class="current_proj">
-                    <div id="current_project_links" class="current_proj"></div>
-                  </div>
-                </td>
-              </tr>
-            </table>
-            <hr class="visibility_content_projects">
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+        <title>Primitiae</title>
+        <link rel="stylesheet" href="styles.css" type="text/css">
+        <script type="text/javascript" src="script.js"></script>
+        <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+        <link rel="manifest" href="icons/site.webmanifest">
+        <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+    </head>
+    <body onload="load_page()" onresize="reload_page()">
+        <div id="main_background">
+            <div id="pseudo_background">
+                <div id="mode_button_container" onclick="change_mode()">
+                    <canvas id="mode_button_canvas"></canvas>
+                </div>
+                <div id="nav_bar">
+                    <div class="nav_button" id="0" onclick="main_button_clicked(0)">
+                        <canvas class="nav_button_decoration" id="0_dec"></canvas>
+                        <p class="nav_button_text" id="0_txt">About</p>
+                    </div>
+                    <div class="nav_button" id="1" onclick="main_button_clicked(1)">
+                        <canvas class="nav_button_decoration" id="1_dec"></canvas>
+                        <p class="nav_button_text" id="1_txt">Projects</p>
+                    </div>
+                    <div class="nav_button" id="2" onclick="main_button_clicked(2)">
+                        <canvas class="nav_button_decoration" id="2_dec"></canvas>
+                        <p class="nav_button_text" id="2_txt">Contact</p>
+                    </div>
+                </div>
+                <canvas id="content_box_dec"></canvas>
+                <div id="content_box">
+                </div>
+            </div>
         </div>
-        <div id="contact_container">
-            <hr class="visibility_content_contact">
-            <p id="contact_text" class="visibility_content_contact">
-              <a href="mailto:drobertc@protonmail.com?subject=Homepage Contact"><img src="img/email.png" class="logos"> E-mail me!</a><br>
-              <a href="https://github.com/archmagos-dominus"><img src="img/github.png" class="logos"> github</a><br>
-              <a href="https://huggingface.co/archmagos"><img src="img/hf.png" class="logos"> hugginface</a><br>
-              <a href="https://discord.gg/GdbQJh8VU9"><img src="img/discord.png" class="logos"> discord invite</a>
-            </p>
-            <hr class="visibility_content_contact">
-        </div>
-      </div>
-    <div>
-  </body>
+    </body>
 </html>
