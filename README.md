@@ -27,8 +27,8 @@ I will accept any input on the quality of the code provided, but only if the sol
 
 The idea behind the page is quite simple: 3 main buttons leading to the following categories: 
 - A quick presentation detailing my most important principles
--  A collection of summaries on my most comprehensive projects, alongside links to web demos of said projects
--  A link tree noting my presence on social media as a programmer, and various ways for people to reach me
+- A collection of summaries on my most comprehensive projects, alongside links to web demos of said projects
+- A link tree noting my presence on social media as a programmer, and various ways for people to reach me
 
 The page must also offer the functionality of light/dark mode (`LUX`/`NOX`) which I think is a must considering the colour choices, made to evoke an ancient feeling, might not be to everyone’s taste. (Your loss, hehe)
 
@@ -39,7 +39,7 @@ As it was understood from the text above, this is not the final version, and the
 - [ ] assign a delicate shading effect on the links, making them more visible in both LUX and NOX modes
 - [ ] create the portrait mode design and functionality
 - [ ] BUG: shading issues with projects buttons
-- [ ] BUG: images in the contact are not displayed immediately – currently explored solution: loading the images at the start and then assigning them from memory
+- [x] BUG: images in the contact are not displayed immediately – currently explored solution: loading the images at the start and then assigning them from memory
 - [ ] BUG: in certain fringe cases either the selection bugs out or the animation is never considered ’finished’
 - [ ] REDO: rewrite the about text to better fulfill it’s purpose
 - [ ] create the demonstration pages for the projects selected
