@@ -29,6 +29,39 @@ var nav_buttons = [];
 var nav_button_decorations = [];
 var nav_buttons_text = [];
 var toggle_text = [];
+//image vars for the contact linktree
+var image_gallery = [
+    //email
+    {
+        nox:"img/email_nox_dark.png",
+        lux_light:"img/email_lux_light.png",
+        lux_dark:"img/email_lux_dark.png"
+    },
+    //github
+    {
+        nox:"img/github_nox_dark.png",
+        lux_light:"img/github_lux_light.png",
+        lux_dark:"img/github_lux_dark.png"
+    },
+    //higginface
+    {
+        nox:"img/hf_nox_dark.png",
+        lux_light:"img/hf_lux_light.png",
+        lux_dark:"img/hf_lux_dark.png"
+    },
+    //discord
+    {
+        nox:"img/discord_nox_dark.png",
+        lux_light:"img/discord_lux_light.png",
+        lux_dark:"img/discord_lux_dark.png"
+    },
+    //itchio
+    {
+        nox:"img/itchio_nox_dark.png",
+        lux_light:"img/itchio_lux_light.png",
+        lux_dark:"img/itchio_lux_dark.png"
+    }
+];
 //colours
 var Roma, Juno, Venus, Trivia, Nymphae_Avernales, Melinoe, Zagreus, Proserpina, Pluto, Maribel, Vulcan, Neptune, Mars, Sol, Minerva, Quirinus, Pontus, Salacia, Carmentis, Falacer, Flora, Furrina, Palatua, Portunus, Volturnus, Janus;
 //shaders
@@ -64,7 +97,7 @@ const main_content = [
     <div id="project_display_text"></div>`,
     
     `<p id="contact_text" class="text_content">
-    <a href="mailto:praefectum_fabrum@proton.me?subject=Homepage Contact" class="link_content"><img src="" class="logos"> E-mail me!</a><br>
+    <a href="mailto:yk3a4tgpd@mozmail.com?subject=Homepage Contact" class="link_content"><img src="" class="logos"> E-mail me!</a><br>
     <a href="https://github.com/archmagos-dominus" class="link_content"><img src="" class="logos"> Github repositories</a><br>
     <a href="https://huggingface.co/archmagos" class="link_content"><img src="" class="logos"> Hugginface repositories</a><br>
     <a href="https://discord.gg/GdbQJh8VU9" class="link_content"><img src="" class="logos"> Discord server invite</a><br>
@@ -184,29 +217,23 @@ const project_content = [
         </p>`
 ];
 
-//onLoad execture those functions
+//executes at init - loads DOM elements and possitions them
 function load_page() {
     //load html elements
     load_elements();
-    //check which mode is selected
-    set_colours(mode);
-    //size up and position all elements
-    resize_page_elements();
-    //colour the elements
-    assign_colours();
-    //check if you need to redraw the canvas (show_main_opened and show_main_initial is where the drawing and the positioning should happen)
-    if (main_container_open) {
-        //draw open
-        show_main_opened();
-    } else {
-        //draw closed
-        show_main_intial();
-    }
+    //position all elements properly
+    position_elements();
 }
 
-//function to be executed onResize
+//executes at any reload/resize of the page - same as load_page(), but without the need to load DOM elements
 function reload_page() {
-    //check which mode is selected
+    //re-position all elements properly
+    position_elements();
+}
+
+//function: positions all the elements properly as well as assign their proper colours
+function position_elements() {
+    //check which colour mode is selected
     set_colours(mode);
     //size up and position all elements
     resize_page_elements();
@@ -222,31 +249,18 @@ function reload_page() {
     }
 }
 
-//changes from light mode to dark mode and vice versa
+//function: changes from light mode to dark mode and vice versa
 function change_mode(){
     //if the animation is in progress, do not do anything
     if (animation_on) {
         return;
     }
     mode = !mode;
-    //check which mode is selected
-    set_colours(mode);
-    //colour the elements
-    assign_colours();
-    //size up and position all elements
-    resize_page_elements();
-    //check if you need to redraw the canvas (show_main_opened and show_main_initial is where the drawing and the positioning should happen)
-    if (main_container_open) {
-        //draw open
-        show_main_opened();
-    } else {
-        //draw closed
-        show_main_intial();
-    }
+    //re-position all elements properly
+    position_elements();
 }
 
-
-//loads DOM elements into the code once the 
+//function: loads initial DOM elements & preloads images to memory
 function load_elements() {
     main_background = document.getElementById("main_background");
     pseudo_background = document.getElementById("pseudo_background");
@@ -259,48 +273,70 @@ function load_elements() {
     nav_button_decorations = document.getElementsByClassName("nav_button_decoration");
     nav_buttons_text = document.getElementsByClassName("nav_button_text");
     div_content_box = document.getElementById("content_box");
-}
 
-
-//get random colour
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
+    //preload images to prevent that slight jitter for a few ms until the images load in normal image operations
+    for (let index = 0; index < image_gallery.length; index++) {
+        //create an image object
+        let img_nox = new Image();
+        img_nox.onload = (index) => {
+            //convert image object to an url that we can use as a source and store it in the initial array
+            image_gallery[index].nox=URL.createObjectURL(img_nox)
+        }
+        //set the source for the image
+        img_nox.src=image_gallery[index].nox;
+        //create an image object
+        let img_lux_l = new Image();
+        img_lux_l.onload = (index) => {
+            //convert image object to an url that we can use as a source and store it in the initial array
+            image_gallery[index].lux_light=URL.createObjectURL(img_lux_l)
+        }
+        //set the source for the image
+        img_lux_l.src=image_gallery[index].lux_light;
+        //create an image object
+        let img_lux_d = new Image();
+        img_lux_d.onload = (index) => {
+            //convert image object to an url that we can use as a source and store it in the initial array
+            image_gallery[index].lux_dark=URL.createObjectURL(img_lux_d)
+        }
+        //set the source for the image
+        img_lux_d.src=image_gallery[index].lux_dark
     }
-    return color;
 }
 
-//randomize an existing colour
-function randomizeColour(colour) {
-    var red = parseInt(colour.slice(1,3),16);
-    var green = parseInt(colour.slice(3,5),16);
-    var blue = parseInt(colour.slice(5,7),16);
-
-    var increase;
-    (Math.random>0.5)?increase=Math.floor(Math.random()*30):increase = -1*Math.floor(Math.random()*30);
-    if (increase>0){
-        (red+increase>255)?red=255:red=red+increase;
-        (green+increase>255)?green=255:green=green+increase;
-        (blue+increase>255)?blue=255:blue=blue+increase;
+//function: returns a slightly darker/lighter shade of a given hex colour
+function randomize_colour(colour) {
+    //slice the colour hex into it's RGB parts
+    let red = parseInt(colour.slice(1,3),16);
+    let green = parseInt(colour.slice(3,5),16);
+    let blue = parseInt(colour.slice(5,7),16);
+    //get a random change in the shade
+    let change=(Math.random>0.5)?Math.floor(Math.random()*30):-1*Math.floor(Math.random()*30);
+    //apply said change to the RGB values (special cases if the change is positive or negative)
+    if (change>0){
+        //check for overflow (max 255)
+        (red+change>255)?red=255:red=red+change;
+        (green+change>255)?green=255:green=green+change;
+        (blue+change>255)?blue=255:blue=blue+change;
     } else {
-        (red+increase<0)?red=0:red=red+increase;
-        (green+increase<0)?green=0:green=green+increase;
-        (blue+increase<0)?blue=0:blue=blue+increase;
+        //check for overflow (min 0)
+        (red+change<0)?red=0:red=red+change;
+        (green+change<0)?green=0:green=green+change;
+        (blue+change<0)?blue=0:blue=blue+change;
     }
+    //convert the integer RGB values to strings
     red=red.toString(16);
     green=green.toString(16);
     blue=blue.toString(16);
-    var new_colour = "#"+red+green+blue;
+    //concatenate the strings into a hex #RGB value
+    let new_colour = "#"+red+green+blue;
     return new_colour;
 }
 
-//sets the colour scheme to be used (light or dark)
+//function: changes the colour variables to their LUX/NOX variants
 function set_colours(mode) {
     switch (mode) {
         case false:
-            //set all colours up for dark mode
+            //set all colours up for NOX (dark) mode
             //background
             Roma="#C8CDD2";
             //pseudobackground
@@ -360,13 +396,13 @@ function set_colours(mode) {
             break;
 
         case true:
-            //set all colours up for light mode
+            //set all colours up for LUX (light) mode
             //background
             Roma="radial-gradient(circle, rgb(228,225,217) 65%, rgb(214,209,195) 100%)";
             //pseudobackground
-            Juno='#F9EAE5';//"#e5e4e2";
+            Juno='#F9EAE5';
             //nav button bg
-            Neptune='#166A7B';//"#388385";
+            Neptune='#166A7B';
             //nav text and decorations
             Venus="#DAE4E4";
             //nav text and decorations clicked
@@ -376,7 +412,7 @@ function set_colours(mode) {
             //mode button pseudobg
             Nymphae_Avernales="#565655";
             //mode button selection square background
-            Melinoe='#166A7B';//"#388385";
+            Melinoe='#166A7B';
             //mode button selection square pseudobackground
             Zagreus="#E4E1D9";
             //mode button text and decorations
@@ -384,13 +420,13 @@ function set_colours(mode) {
             //mode button text and decoration clicked
             Pluto="#DAE4E4";
             //chevron/ribbon red bg
-            Mars='#7B2716';//'#990000';
+            Mars='#7B2716';
             //golden decorations 
             Sol='#ffd700';
             //column lines
             Minerva='#393D47';
             //container bg - parchment colour
-            Pomona='#F9F4E5';//"#FCF5E5";//"#e8e5dd";
+            Pomona='#F9F4E5';
             //container decorations
             Diana="#393D47";
             //content text
@@ -416,18 +452,18 @@ function set_colours(mode) {
             //scrollbar
             document.querySelector(':root').style.setProperty('--scroll-thumb-color', Sol);
             break;
+        
         default:
             break;
     }
 }
 
-//assigns the colours to the html elements
+//function: assigns colours to the static DOM elements
 function assign_colours() {
-     //assign the colours to the html elements
-     main_background.style.background=Roma;
-     pseudo_background.style.backgroundColor=Juno;
-     pseudo_background.style.backgroundImage=(mode=="light")?bg_noise:"";
-     toggle_button_container.style.backgroundColor=Trivia;
+    main_background.style.background=Roma;
+    pseudo_background.style.backgroundColor=Juno;
+    pseudo_background.style.backgroundImage=(mode)?bg_noise:""; //render noise if the mode is LUX
+    toggle_button_container.style.backgroundColor=Trivia;
 }
 
 //function that handles the preliminary page display
@@ -673,8 +709,9 @@ function decoration_start(button_id, new_colour) {
         for (let j = 0; j < 7; j++) {
             context.beginPath();
             context.arc(x_coords[i]+temp_y/2, temp_y*(j+0.5), temp_y/3, 0, 2 * Math.PI, false);
-            context.fillStyle = (mode=="light")?randomizeColour(new_colour):new_colour;
+            context.fillStyle = (mode)?randomize_colour(new_colour):new_colour;
             context.fill();
+            console.log("beep?",(mode))
         }
     }
     //draw the top/bottom lines
@@ -723,7 +760,7 @@ function decoration_start(button_id, new_colour) {
     //left column
     for (let i = 0; i < dec_n; i++) {
         //get a colour
-        var colour = (mode=="light")?randomizeColour(new_colour):new_colour;
+        var colour = (mode)?randomize_colour(new_colour):new_colour;
         context.strokeStyle=colour;
         //draw a square
         context.beginPath();
@@ -745,7 +782,7 @@ function decoration_start(button_id, new_colour) {
     //right column
     for (let i = 0; i < dec_n; i++) {
         //get a colour
-        var colour = (mode=="light")?randomizeColour(new_colour):new_colour;
+        var colour = (mode)?randomize_colour(new_colour):new_colour;
         context.strokeStyle =colour;
         //draw a square
         context.beginPath();
@@ -1616,38 +1653,6 @@ function style_content(){
             let ctext = document.getElementById("contact_text");
             let clinks = document.getElementsByClassName("link_content");
             let clink_imgs = document.getElementsByClassName("logos");
-            let image_gallery = [
-                //email
-                {
-                    nox:"img/email_nox_dark.png",
-                    lux_light:"img/email_lux_light.png",
-                    lux_dark:"img/email_lux_dark.png"
-                },
-                //github
-                {
-                    nox:"img/github_nox_dark.png",
-                    lux_light:"img/github_lux_light.png",
-                    lux_dark:"img/github_lux_dark.png"
-                },
-                //higginface
-                {
-                    nox:"img/hf_nox_dark.png",
-                    lux_light:"img/hf_lux_light.png",
-                    lux_dark:"img/hf_lux_dark.png"
-                },
-                //discord
-                {
-                    nox:"img/discord_nox_dark.png",
-                    lux_light:"img/discord_lux_light.png",
-                    lux_dark:"img/discord_lux_dark.png"
-                },
-                //itchio
-                {
-                    nox:"img/itchio_nox_dark.png",
-                    lux_light:"img/itchio_lux_light.png",
-                    lux_dark:"img/itchio_lux_dark.png"
-                }
-            ];
             let image_size = Math.floor(div_content_box.offsetHeight/20)+"px";
             //text sizes
             ctext.style.fontSize = div_content_box.offsetHeight/16+"px";
