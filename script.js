@@ -67,8 +67,8 @@ var Roma, Juno, Venus, Trivia, Nymphae_Avernales, Melinoe, Zagreus, Proserpina, 
 //shaders
 const no_shading_nav_button = "0 0px 0px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)";
 const shading_nav_button = "-8px 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)";
-const no_shading_project_button = "0 0px 0px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)";
-const shading_project_button = "-4px 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 12px 0 rgba(0, 0, 0, 0.19);";
+const no_shading_project_button = "0 0px 0px 0 rgba(0, 0, 0, 0.2), 0 0px 0px 0 rgba(0, 0, 0, 0.19)";
+const shading_project_button = "-4px 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)";
 const bg_noise = "var(--noise_image)";
 const button_noise = "var(--noise_marble)";
 //main contnet
@@ -498,7 +498,7 @@ function resize_page_elements() {
         toggle_button_container.style.position = "absolute";
         toggle_button_container.style.top = pseudo_background.offsetTop*2 + "px";
         toggle_button_container.style.left = pseudo_background.offsetWidth-pseudo_background.offsetLeft*2-toggle_button_container.offsetWidth + "px";
-        //LUX/NOX button canvas                                                                            ///////////////////////////////////////TODO make it vertical for portrait mode blep
+        //LUX/NOX button canvas
         toggle_canvas.style.height = Math.floor(toggle_button_container.offsetHeight*5/6) + "px";
         toggle_canvas.style.position = "absolute";
         toggle_canvas.style.top =  Math.floor((toggle_button_container.offsetHeight-toggle_canvas.offsetHeight)/2) + "px";
@@ -506,6 +506,8 @@ function resize_page_elements() {
         toggle_canvas.style.width = Math.floor(toggle_button_container.offsetWidth-toggle_canvas.offsetLeft*2) + "px";
         toggle_canvas.height = toggle_canvas.style.height.replace('px','');
         toggle_canvas.width = toggle_canvas.style.width.replace('px','');
+        //create the 'LUX/NOX' button
+        show_toggle_button_lnd();
         //main container decoration canvas
         main_decoration_canvas.style.position = "absolute";
         main_decoration_canvas.style.height = Math.floor(pseudo_background.style.height.replace('px','')-(pseudo_background.style.height.replace('px','')*2.25/10)) + "px";
@@ -532,7 +534,7 @@ function resize_page_elements() {
             nav_buttons[index].style.left = index*3*Math.floor(nav_bar.offsetWidth/8) + "px";
             nav_buttons[index].style.backgroundColor=Neptune;
         }
-        //nav_button_decorations (canvases at the sides of hte buttons, used to draw decorations on them)
+        //nav_button_decorations (canvases around the buttons, used to draw decorations on them)
         for (let index = 0; index < nav_button_decorations.length; index++) {
             nav_button_decorations[index].style.position = "absolute";
             nav_button_decorations[index].style.height = nav_buttons[index].style.height;
@@ -556,9 +558,7 @@ function resize_page_elements() {
             nav_buttons_text[index].style.color=Venus;
         }
 
-        //draw the elements on the toggle btn canvas
-        show_toggle_button_lnd();//move to show main something
-        //check the status of the contianer move this to show something somethingh
+        //check the status of the content container and arrange the elements accordingly
         if (!main_container_open) {
             //initialize the page elements after the container box has been opened
             show_main_intial(); //resize the canvas as 0,0 and add no elements to it
@@ -566,16 +566,97 @@ function resize_page_elements() {
             //initialize the elements without the opening the container box
             show_main_opened(); //canvas is max sized and all the elements are drawn on it
         }
-
-        //nav_bar.style.top = Math.floor((pseudo_background.style.height.replace('px','')/5-nav_bar.offsetHeight)/2) + "px";
-
-        //about container positions and sizes
-        //projects container possitions and sizes
-        //contact container possitions and sizes
-
     } else {
         //calculate element sizes according to width
-        
+        //main_background
+        main_background.style.height = screen_height + "px";
+        main_background.style.width = screen_width + "px";
+        main_background.style.position = "absolute";
+        main_background.style.top = "0px";
+        main_background.style.left = "0px";
+        //pseudo_background (centered in parent)
+        pseudo_background.style.position = "absolute";
+        pseudo_background.style.height = Math.floor(main_background.offsetHeight*98/100) + "px";
+        pseudo_background.style.width = Math.floor(main_background.offsetWidth*98/100) + "px";
+        pseudo_background.style.top = Math.floor((main_background.offsetHeight-pseudo_background.offsetHeight)/2) + "px";
+        pseudo_background.style.left = Math.floor((main_background.offsetWidth-pseudo_background.offsetWidth)/2) + "px";
+        //LUX/NOX button container
+        toggle_button_container.style.height = Math.floor(screen_width/6) + "px";
+        toggle_button_container.style.width = toggle_button_container.offsetHeight + "px";
+        toggle_button_container.style.position = "absolute";
+        toggle_button_container.style.top = pseudo_background.offsetTop*2 + "px";
+        toggle_button_container.style.left = pseudo_background.offsetWidth-pseudo_background.offsetLeft*2-toggle_button_container.offsetWidth + "px";
+        //LUX/NOX button canvas
+        toggle_canvas.style.height = Math.floor(toggle_button_container.offsetHeight*5/6) + "px";
+        toggle_canvas.style.position = "absolute";
+        toggle_canvas.style.top =  Math.floor((toggle_button_container.offsetHeight-toggle_canvas.offsetHeight)/2) + "px";
+        toggle_canvas.style.left = Math.floor((toggle_button_container.offsetHeight-toggle_canvas.offsetHeight)/2) + "px";
+        toggle_canvas.style.width = Math.floor(toggle_button_container.offsetHeight*5/6) + "px";
+        toggle_canvas.height = toggle_canvas.style.height.replace('px','');
+        toggle_canvas.width = toggle_canvas.style.width.replace('px','');
+        //create the 'LUX/NOX' button
+        show_toggle_button_prt();
+
+//we  left here     //////////////////////  ///////////////         /////////////////////////////// //////////////////////////////////////              /////////////////////////////////////
+
+        //main container decoration canvas
+        main_decoration_canvas.style.position = "absolute";
+        main_decoration_canvas.style.height = Math.floor(pseudo_background.style.height.replace('px','')-(pseudo_background.style.height.replace('px','')*2.25/10)) + "px";
+        main_decoration_canvas.style.top =   Math.floor(pseudo_background.style.height.replace('px','')/5) + "px";
+        main_decoration_canvas.style.width = Math.floor(main_decoration_canvas.style.height.replace('px','')*2.5)+ "px";
+        main_decoration_canvas.style.left = Math.floor((pseudo_background.offsetWidth-main_decoration_canvas.offsetWidth)/2)+ 'px';
+        main_decoration_canvas.height = main_decoration_canvas.style.height.replace('px','');
+        main_decoration_canvas.width = main_decoration_canvas.style.width.replace('px','');
+        decoration_canvas_size = {
+            w:main_decoration_canvas.offsetWidth,
+            h:main_decoration_canvas.offsetHeight
+        }
+        //nav_bar (centered in parent)
+        nav_bar.style.position = "absolute";
+        nav_bar.style.height = Math.floor(pseudo_background.offsetHeight*2/10) + "px";
+        nav_bar.style.width = pseudo_background.offsetHeight + "px";
+        nav_bar.style.left = Math.floor((pseudo_background.offsetWidth-nav_bar.offsetWidth)/2) + "px";
+        //nav_buttons (class)
+        for (let index = 0; index < nav_buttons.length; index++) {
+            nav_buttons[index].style.position = "absolute";
+            nav_buttons[index].style.height = Math.floor(nav_bar.offsetHeight/2) + "px";
+            nav_buttons[index].style.width = Math.floor(nav_bar.offsetWidth/4) + "px";
+            nav_buttons[index].style.top = Math.floor((nav_bar.offsetHeight-nav_buttons[index].offsetHeight)/2) + "px";
+            nav_buttons[index].style.left = index*3*Math.floor(nav_bar.offsetWidth/8) + "px";
+            nav_buttons[index].style.backgroundColor=Neptune;
+        }
+        //nav_button_decorations (canvases around the buttons, used to draw decorations on them)
+        for (let index = 0; index < nav_button_decorations.length; index++) {
+            nav_button_decorations[index].style.position = "absolute";
+            nav_button_decorations[index].style.height = nav_buttons[index].style.height;
+            nav_button_decorations[index].style.width = nav_buttons[index].style.width;
+            nav_button_decorations[index].style.top = "0px";
+            nav_button_decorations[index].style.left = "0px";
+            //special for canvases
+            nav_button_decorations[index].height = nav_buttons[index].style.height.replace('px','');
+            nav_button_decorations[index].width = nav_buttons[index].style.width.replace('px','');
+            //draw the decorations
+            decoration_start(nav_button_decorations[index], Venus);                 
+        }
+        //place the text on the buttons
+        for (let index = 0; index < nav_buttons_text.length; index++) {
+            nav_buttons_text[index].style.fontSize = nav_button_decorations[index].offsetHeight/5 + "px";
+            nav_buttons_text[index].style.position = "absolute";
+            //nav_buttons_text[index].style.height = nav_buttons[index].offsetHeight + "px"; //let the algorithm figure out the heigh, no reason to worry about it here
+            nav_buttons_text[index].style.width = nav_buttons[index].style.width.replace('px','') + "px";
+            nav_buttons_text[index].style.top = nav_button_decorations[index].style.height.replace('px','')/7+nav_buttons_text[index].offsetHeight/4 + "px";
+            nav_buttons_text[index].style.left = "0px";
+            nav_buttons_text[index].style.color=Venus;
+        }
+
+        //check the status of the content container and arrange the elements accordingly
+        if (!main_container_open) {
+            //initialize the page elements after the container box has been opened
+            show_main_intial(); //resize the canvas as 0,0 and add no elements to it
+        } else {
+            //initialize the elements without the opening the container box
+            show_main_opened(); //canvas is max sized and all the elements are drawn on it
+        }
     }
 
 }
@@ -646,7 +727,6 @@ function show_toggle_button_lnd(){
     context.fillText("LUX", toggle_canvas.width/4, toggle_canvas.height*3/4);
     
     //fill all the shapes
-    //context.strokeStyle = Nymphae_Avernales;
     context.fill();
 
     //create the NOX shape
@@ -671,7 +751,6 @@ function show_toggle_button_lnd(){
     context.moveTo(point_a.x, point_a.y);
     context.quadraticCurveTo(point_c.x, point_c.y, point_b.x, point_b.y);
     context.quadraticCurveTo(NOX_origin.x, NOX_origin.y, point_a.x, point_a.y);
-    //context.stroke(); 
 
     //create the NOX text
     context.fillStyle = Pluto;
@@ -683,7 +762,99 @@ function show_toggle_button_lnd(){
 }
 
 function show_toggle_button_prt(){
-    //size up the canvas according to the width and height, and position it vertically in th etop right corner
+    //size up the canvas according to the width and height, and position it vertically in the top right corner
+    let context = toggle_canvas.getContext("2d");
+    //Lampad
+    context.beginPath();
+    context.rect(0, 0, toggle_canvas.width, toggle_canvas.height);
+    context.fillStyle = Nymphae_Avernales;
+    context.fill();
+    //Melinoe
+    context.beginPath();
+    context.rect(0, 0, toggle_canvas.width, toggle_canvas.height);
+    context.fillStyle = Melinoe;
+    context.fill();
+    let zagreus=[toggle_canvas.height/10,toggle_canvas.height/10,toggle_canvas.width*4/5,toggle_canvas.height*4/5];
+    context.beginPath();
+    context.rect(zagreus[0], zagreus[1], zagreus[2], zagreus[3]);
+    context.fillStyle = Zagreus;
+    context.fill();
+    //check if LUX/NOX mode is on, and draw the correct shape/text 
+    if (mode) {
+        //LUX
+        //calculate origin
+        let LUX_origin = {
+            x: toggle_canvas.height/10+toggle_canvas.width/2.5,
+            y: toggle_canvas.height/10+toggle_canvas.height*2/5
+        };
+        let LUX_r = zagreus[2]/6;
+        let LUX_w = LUX_r/2;
+        let LUX_l = LUX_r*2;
+        let LUX_R = LUX_r+LUX_w;
+        let LUX_RM = LUX_r+LUX_l-LUX_w;
+        context.beginPath();
+        context.arc(LUX_origin.x, LUX_origin.y, LUX_r, Math.PI, 2*Math.PI, false);
+        context.lineTo(LUX_origin.x+LUX_RM,LUX_origin.y);
+        context.lineTo(LUX_origin.x+LUX_RM,LUX_origin.y-LUX_w);
+        context.lineTo(LUX_origin.x+LUX_R,LUX_origin.y-LUX_w);
+        context.arc(LUX_origin.x, LUX_origin.y, LUX_R, Math.PI*2-Math.PI/9, 2*Math.PI-2*Math.PI/9, true);
+
+        context.lineTo(LUX_origin.x+LUX_RM*Math.cos(2*Math.PI-2*Math.PI/9), LUX_origin.y+LUX_RM*Math.sin(2*Math.PI-2*Math.PI/9));
+        context.lineTo(LUX_origin.x+LUX_RM*Math.cos(2*Math.PI-3*Math.PI/9), LUX_origin.y+LUX_RM*Math.sin(2*Math.PI-3*Math.PI/9));
+        context.arc(LUX_origin.x, LUX_origin.y, LUX_R, Math.PI*2-3*Math.PI/9, 2*Math.PI-4*Math.PI/9, true);
+
+        context.lineTo(LUX_origin.x+LUX_RM*Math.cos(2*Math.PI-4*Math.PI/9), LUX_origin.y+LUX_RM*Math.sin(2*Math.PI-4*Math.PI/9));
+        context.lineTo(LUX_origin.x+LUX_RM*Math.cos(2*Math.PI-5*Math.PI/9), LUX_origin.y+LUX_RM*Math.sin(2*Math.PI-5*Math.PI/9));
+        context.arc(LUX_origin.x, LUX_origin.y, LUX_R, Math.PI*2-5*Math.PI/9, 2*Math.PI-6*Math.PI/9, true);
+
+        context.lineTo(LUX_origin.x+LUX_RM*Math.cos(2*Math.PI-6*Math.PI/9), LUX_origin.y+LUX_RM*Math.sin(2*Math.PI-6*Math.PI/9));
+        context.lineTo(LUX_origin.x+LUX_RM*Math.cos(2*Math.PI-7*Math.PI/9), LUX_origin.y+LUX_RM*Math.sin(2*Math.PI-7*Math.PI/9));
+        context.arc(LUX_origin.x, LUX_origin.y, LUX_R, Math.PI*2-7*Math.PI/9, 2*Math.PI-8*Math.PI/9, true);
+
+        context.lineTo(LUX_origin.x-LUX_RM,LUX_origin.y-LUX_w);
+        context.lineTo(LUX_origin.x-LUX_RM,LUX_origin.y);
+        context.lineTo(LUX_origin.x-LUX_r,LUX_origin.y);
+
+        //create LUX text
+        context.fillStyle = Proserpina;
+        context.font = zagreus[3]/3+"px bold Trajan";
+        context.textBaseline = "middle";
+        context.textAlign = "center";
+        //fill all the shapes
+        context.fillText("LUX", toggle_canvas.width/2, toggle_canvas.height*3/4);
+        context.fill();
+    } else {
+        //NOX
+        //create the NOX shape
+        let NOX_origin={
+            x:toggle_canvas.width/2,
+            y:toggle_canvas.height/5+toggle_canvas.width/3  
+        }
+        let point_a={
+            x:NOX_origin.x-toggle_canvas.width/3,
+            y:toggle_canvas.height/6
+        }
+        let point_b={
+            x:NOX_origin.x+toggle_canvas.width/3,
+            y:toggle_canvas.height/6
+        }
+        let point_c={
+            x:NOX_origin.x,
+            y:toggle_canvas.height/2.5
+        }
+
+        context.beginPath();
+        context.moveTo(point_a.x, point_a.y);
+        context.quadraticCurveTo(point_c.x, point_c.y, point_b.x, point_b.y);
+        context.quadraticCurveTo(NOX_origin.x, NOX_origin.y, point_a.x, point_a.y);
+        //create the NOX text
+        context.fillStyle = Pluto;
+        context.font = zagreus[3]/3+"px bold Trajan";
+        context.textBaseline = "middle";
+        context.textAlign = "center";
+        context.fillText("NOX", toggle_canvas.width/2, toggle_canvas.height*3/4);
+        context.fill();
+    }
 }
 
 //define how a decoration canvas should look at initialization time
@@ -1512,7 +1683,7 @@ function style_content(){
                 project_selector_texts[index].style.left = prject_selector_canvases[index].offsetLeft+prject_selector_canvases[index].offsetWidth/2-project_selector_texts[index].offsetWidth/2+"px";
                 //set text colour
                 project_selector_texts[index].style.color = Falacer;
-                //check to see   if this button is selected
+                //check to see if this button is selected
                 if ((index==current_project) && project_displayed) {
                     //display selected canvas decorations
                     //calculate the position of the 4 points
@@ -1539,7 +1710,7 @@ function style_content(){
                     ctx.strokeStyle = Falacer; //set the colour of the lines
                     ctx.stroke();
                     //remove all shadows
-                    prject_selector_canvases[index].style.boxShadow = shading_project_button; 
+                    prject_selector_canvases[index].style.boxShadow = no_shading_project_button; 
                 } else {
                     //display unselected canvas decarations
                     //calculate the position of the 4 ponts
@@ -1562,7 +1733,7 @@ function style_content(){
                     ctx.strokeStyle = Falacer; //set the colour var for the lines
                     ctx.stroke();
                     //add shading decarations
-                    prject_selector_canvases[index].style.boxShadow = no_shading_project_button; 
+                    prject_selector_canvases[index].style.boxShadow = shading_project_button; 
                 }
             }
             //set the size and pos of the display area
@@ -1763,7 +1934,7 @@ function display_project(proj_id) {
         ctx.strokeStyle = Falacer; //set the colour var for the line
         ctx.stroke();
         //add shading decarations
-        prject_selector_canvases[current_project].style.boxShadow = no_shading_project_button; 
+        prject_selector_canvases[current_project].style.boxShadow = shading_project_button; 
         //reset project display are to default
         //calculate the position of the 4 ponts
         xi = pad;
@@ -1813,7 +1984,7 @@ function display_project(proj_id) {
         ctx.strokeStyle = Falacer; //set the colour of the lines
         ctx.stroke();
         //remove all shadows
-        prject_selector_canvases[proj_id].style.boxShadow = shading_project_button; 
+        prject_selector_canvases[proj_id].style.boxShadow = no_shading_project_button; 
         //set the project display area to it's proper position
         //calculate the position of the 4 ponts
         xi = pad;

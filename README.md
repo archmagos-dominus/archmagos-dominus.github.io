@@ -38,7 +38,7 @@ The page must also display properly and in an ergonomic manner on all screens, i
 As it was understood from the text above, this is not the final version, and there are still a few key components missing, as well as some possible bugs that may still plague the current version. Here’s a quick list of both:
 - [ ] assign a delicate shading effect on the links, making them more visible in both LUX and NOX modes
 - [ ] create the portrait mode design and functionality
-- [ ] BUG: shading issues with projects buttons
+- [x] BUG: shading issues with projects buttons
 - [x] BUG: images in the contact are not displayed immediately – currently explored solution: loading the images at the start and then assigning them from memory
 - [ ] BUG: in certain fringe cases either the selection bugs out or the animation is never considered ’finished’
 - [ ] REDO: rewrite the about text to better fulfill it’s purpose
