@@ -533,6 +533,7 @@ function resize_page_elements() {
             nav_buttons[index].style.top = Math.floor((nav_bar.offsetHeight-nav_buttons[index].offsetHeight)/2) + "px";
             nav_buttons[index].style.left = index*3*Math.floor(nav_bar.offsetWidth/8) + "px";
             nav_buttons[index].style.backgroundColor=Neptune;
+            nav_buttons[index].style.backgroundImage=marble_noise;
         }
         //nav_button_decorations (canvases around the buttons, used to draw decorations on them)
         for (let index = 0; index < nav_button_decorations.length; index++) {

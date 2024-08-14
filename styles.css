@@ -80,8 +80,8 @@ a:active {
     box-shadow: -8px 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     transition-duration: 0.1s;
     z-index: 4;
-
-    background-image: var(--noise_marble);
+    alt:"var(--noise_marble)";
+    background-image: "";
 }
 
 .nav_button:hover {
