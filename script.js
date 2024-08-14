@@ -69,8 +69,6 @@ const no_shading_nav_button = "0 0px 0px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba
 const shading_nav_button = "-8px 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)";
 const no_shading_project_button = "0 0px 0px 0 rgba(0, 0, 0, 0.2), 0 0px 0px 0 rgba(0, 0, 0, 0.19)";
 const shading_project_button = "-4px 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)";
-const bg_noise = "var(--noise_image)";
-const button_noise = "var(--noise_marble)";
 //main contnet
 const main_content = [
     `<p id="about_text" class="text_content">Hey there.
@@ -486,18 +484,21 @@ function resize_page_elements() {
         main_background.style.position = "absolute";
         main_background.style.top = "0px";
         main_background.style.left = "0px";
+        main_background.style.visibility = "visible";
         //pseudo_background (centered in parent)
         pseudo_background.style.position = "absolute";
         pseudo_background.style.height = Math.floor(main_background.offsetHeight*98/100) + "px";
         pseudo_background.style.width = Math.floor(main_background.offsetWidth*99/100) + "px";
         pseudo_background.style.top = Math.floor((main_background.offsetHeight-pseudo_background.offsetHeight)/2) + "px";
         pseudo_background.style.left = Math.floor((main_background.offsetWidth-pseudo_background.offsetWidth)/2) + "px";
+        pseudo_background.style.visibility = "visible";
         //LUX/NOX button container
         toggle_button_container.style.height = Math.floor(pseudo_background.offsetHeight/12) + "px";
         toggle_button_container.style.width = toggle_button_container.offsetHeight*2 + "px";
         toggle_button_container.style.position = "absolute";
         toggle_button_container.style.top = pseudo_background.offsetTop*2 + "px";
         toggle_button_container.style.left = pseudo_background.offsetWidth-pseudo_background.offsetLeft*2-toggle_button_container.offsetWidth + "px";
+        toggle_button_container.style.visibility = "visible";
         //LUX/NOX button canvas
         toggle_canvas.style.height = Math.floor(toggle_button_container.offsetHeight*5/6) + "px";
         toggle_canvas.style.position = "absolute";
@@ -525,6 +526,7 @@ function resize_page_elements() {
         nav_bar.style.height = Math.floor(pseudo_background.offsetHeight*2/10) + "px";
         nav_bar.style.width = pseudo_background.offsetHeight + "px";
         nav_bar.style.left = Math.floor((pseudo_background.offsetWidth-nav_bar.offsetWidth)/2) + "px";
+        nav_bar.style.visibility = "visible";
         //nav_buttons (class)
         for (let index = 0; index < nav_buttons.length; index++) {
             nav_buttons[index].style.position = "absolute";
@@ -534,6 +536,7 @@ function resize_page_elements() {
             nav_buttons[index].style.left = index*3*Math.floor(nav_bar.offsetWidth/8) + "px";
             nav_buttons[index].style.backgroundColor=Neptune;
             nav_buttons[index].style.backgroundImage=marble_noise;
+            nav_buttons[index].style.visibility = "visible";
         }
         //nav_button_decorations (canvases around the buttons, used to draw decorations on them)
         for (let index = 0; index < nav_button_decorations.length; index++) {
@@ -557,6 +560,7 @@ function resize_page_elements() {
             nav_buttons_text[index].style.top = nav_button_decorations[index].style.height.replace('px','')/7+nav_buttons_text[index].offsetHeight/4 + "px";
             nav_buttons_text[index].style.left = "0px";
             nav_buttons_text[index].style.color=Venus;
+            nav_buttons_text[index].style.visibility = "visible";       
         }
 
         //check the status of the content container and arrange the elements accordingly
@@ -575,18 +579,21 @@ function resize_page_elements() {
         main_background.style.position = "absolute";
         main_background.style.top = "0px";
         main_background.style.left = "0px";
+        main_background.style.visibility = "visible";
         //pseudo_background (centered in parent)
         pseudo_background.style.position = "absolute";
         pseudo_background.style.height = Math.floor(main_background.offsetHeight*98/100) + "px";
         pseudo_background.style.width = Math.floor(main_background.offsetWidth*98/100) + "px";
         pseudo_background.style.top = Math.floor((main_background.offsetHeight-pseudo_background.offsetHeight)/2) + "px";
         pseudo_background.style.left = Math.floor((main_background.offsetWidth-pseudo_background.offsetWidth)/2) + "px";
+        pseudo_background.style.visibility = "visible";
         //LUX/NOX button container
         toggle_button_container.style.height = Math.floor(screen_width/6) + "px";
         toggle_button_container.style.width = toggle_button_container.offsetHeight + "px";
         toggle_button_container.style.position = "absolute";
         toggle_button_container.style.top = pseudo_background.offsetTop*2 + "px";
         toggle_button_container.style.left = pseudo_background.offsetWidth-pseudo_background.offsetLeft*2-toggle_button_container.offsetWidth + "px";
+        toggle_button_container.style.visibility = "visible";
         //LUX/NOX button canvas
         toggle_canvas.style.height = Math.floor(toggle_button_container.offsetHeight*5/6) + "px";
         toggle_canvas.style.position = "absolute";
