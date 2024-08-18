@@ -580,19 +580,19 @@ function resize_page_elements() {
         main_background.style.top = "0px";
         main_background.style.left = "0px";
         main_background.style.visibility = "visible";
-        //pseudo_background (centered in parent)
+        //pseudo_background 
         pseudo_background.style.position = "absolute";
         pseudo_background.style.height = Math.floor(main_background.offsetHeight*98/100) + "px";
         pseudo_background.style.width = Math.floor(main_background.offsetWidth*98/100) + "px";
         pseudo_background.style.top = Math.floor((main_background.offsetHeight-pseudo_background.offsetHeight)/2) + "px";
-        pseudo_background.style.left = Math.floor((main_background.offsetWidth-pseudo_background.offsetWidth)/2) + "px";
+        pseudo_background.style.left = "0px";
         pseudo_background.style.visibility = "visible";
         //LUX/NOX button container
         toggle_button_container.style.height = Math.floor(screen_width/6) + "px";
         toggle_button_container.style.width = toggle_button_container.offsetHeight + "px";
         toggle_button_container.style.position = "absolute";
         toggle_button_container.style.top = pseudo_background.offsetTop*2 + "px";
-        toggle_button_container.style.left = pseudo_background.offsetWidth-pseudo_background.offsetLeft*2-toggle_button_container.offsetWidth + "px";
+        toggle_button_container.style.left = pseudo_background.offsetWidth-pseudo_background.offsetTop*2-toggle_button_container.offsetWidth + "px";
         toggle_button_container.style.visibility = "visible";
         //LUX/NOX button canvas
         toggle_canvas.style.height = Math.floor(toggle_button_container.offsetHeight*5/6) + "px";
@@ -605,14 +605,13 @@ function resize_page_elements() {
         //create the 'LUX/NOX' button
         show_toggle_button_prt();
 
-//we  left here     //////////////////////  ///////////////         /////////////////////////////// //////////////////////////////////////              /////////////////////////////////////
-
+        let temp_x = (2*toggle_button_container.offsetTop) + toggle_button_container.offsetHeight;
         //main container decoration canvas
         main_decoration_canvas.style.position = "absolute";
-        main_decoration_canvas.style.height = Math.floor(pseudo_background.style.height.replace('px','')-(pseudo_background.style.height.replace('px','')*2.25/10)) + "px";
-        main_decoration_canvas.style.top =   Math.floor(pseudo_background.style.height.replace('px','')/5) + "px";
-        main_decoration_canvas.style.width = Math.floor(main_decoration_canvas.style.height.replace('px','')*2.5)+ "px";
-        main_decoration_canvas.style.left = Math.floor((pseudo_background.offsetWidth-main_decoration_canvas.offsetWidth)/2)+ 'px';
+        main_decoration_canvas.style.height = Math.floor(screen_height-(temp_x*2)) + "px";
+        main_decoration_canvas.style.top = temp_x + "px";
+        main_decoration_canvas.style.width = Math.floor(screen_width-toggle_button_container.offsetTop)+ "px";
+        main_decoration_canvas.style.left = '0px';
         main_decoration_canvas.height = main_decoration_canvas.style.height.replace('px','');
         main_decoration_canvas.width = main_decoration_canvas.style.width.replace('px','');
         decoration_canvas_size = {
@@ -621,17 +620,20 @@ function resize_page_elements() {
         }
         //nav_bar (centered in parent)
         nav_bar.style.position = "absolute";
-        nav_bar.style.height = Math.floor(pseudo_background.offsetHeight*2/10) + "px";
-        nav_bar.style.width = pseudo_background.offsetHeight + "px";
-        nav_bar.style.left = Math.floor((pseudo_background.offsetWidth-nav_bar.offsetWidth)/2) + "px";
+        nav_bar.style.height = Math.floor(screen_height-(temp_x*2)) + "px";
+        nav_bar.style.top  = temp_x + "px";
+        nav_bar.style.width = main_decoration_canvas.style.width.replace('px','') + "px";
+        nav_bar.style.left ="0px";
+        nav_bar.style.visibility = "visible";
         //nav_buttons (class)
         for (let index = 0; index < nav_buttons.length; index++) {
             nav_buttons[index].style.position = "absolute";
-            nav_buttons[index].style.height = Math.floor(nav_bar.offsetHeight/2) + "px";
-            nav_buttons[index].style.width = Math.floor(nav_bar.offsetWidth/4) + "px";
-            nav_buttons[index].style.top = Math.floor((nav_bar.offsetHeight-nav_buttons[index].offsetHeight)/2) + "px";
-            nav_buttons[index].style.left = index*3*Math.floor(nav_bar.offsetWidth/8) + "px";
+            nav_buttons[index].style.height = Math.floor(nav_bar.offsetHeight/5) + "px";
+            nav_buttons[index].style.width = Math.floor(nav_bar.offsetHeight/2) + "px";
+            nav_buttons[index].style.top = Math.floor(nav_bar.offsetTop+(index*nav_bar.offsetWidth/3)) + "px";
+            nav_buttons[index].style.left = "0px";
             nav_buttons[index].style.backgroundColor=Neptune;
+            nav_buttons[index].style.visibility = "visible";
         }
         //nav_button_decorations (canvases around the buttons, used to draw decorations on them)
         for (let index = 0; index < nav_button_decorations.length; index++) {
@@ -644,9 +646,10 @@ function resize_page_elements() {
             nav_button_decorations[index].height = nav_buttons[index].style.height.replace('px','');
             nav_button_decorations[index].width = nav_buttons[index].style.width.replace('px','');
             //draw the decorations
-            decoration_start(nav_button_decorations[index], Venus);                 
+            //we  left here     //////////////////////  ///////////////         /////////////////////////////// //////////////////////////////////////              //////////////////////
+            decoration_start(nav_button_decorations[index], Venus);   //redo the decoration to fit the new model              
         }
-        //place the text on the buttons
+        //place the text on the buttons ////////////////////////  ///////////////         /////////////////////////////// //////////////////////////////////////       put the text futher left       
         for (let index = 0; index < nav_buttons_text.length; index++) {
             nav_buttons_text[index].style.fontSize = nav_button_decorations[index].offsetHeight/5 + "px";
             nav_buttons_text[index].style.position = "absolute";
@@ -655,6 +658,7 @@ function resize_page_elements() {
             nav_buttons_text[index].style.top = nav_button_decorations[index].style.height.replace('px','')/7+nav_buttons_text[index].offsetHeight/4 + "px";
             nav_buttons_text[index].style.left = "0px";
             nav_buttons_text[index].style.color=Venus;
+            nav_buttons_text[index].style.visibility = "visible";
         }
 
         //check the status of the content container and arrange the elements accordingly
