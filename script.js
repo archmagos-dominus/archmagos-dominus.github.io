@@ -3062,16 +3062,16 @@ function handleTouchMove(evt) {
 }
 
 function handleTouchEnd(evt) {
-    if (xi-xf>screen_width/3) {
+    if (xi-xf>screen_width/4) {
         console.log('Swipe Left');
         prev_project();
-    } else if (xi-xf<-1*screen_width/3) {
+    } else if (xi-xf<-1*screen_width/4) {
         console.log('Swipe Right');
         next_project();
     }
     // Reset values or handle end of touch event
     xi=0;xf=0;
-    console.log('Touch ended');
+    console.log('Touch ended',screen_width,xi-xf);
 }
 
 function prev_project() {
