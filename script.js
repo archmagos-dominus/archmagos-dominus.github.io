@@ -12,7 +12,7 @@ var project_displayed=false;
 var current_project=null;
 var y_coords;
 //touch position 
-var xi;
+var xi,xf;
 //animation vars
 var keyframe=0;
 var animation_on=false;
@@ -3024,7 +3024,7 @@ function remove_listeners(){
     document.onkeydown=null;
     //remove touch listeners
     document.removeEventListener('touchstart', handleTouchStart, false);
-    //document.removeEventListener('touchmove', handleTouchMove, false);
+    document.removeEventListener('touchmove', handleTouchMove, false);
     document.removeEventListener('touchend', handleTouchEnd, false);
 }
 
@@ -3047,7 +3047,7 @@ function add_listeners(selector_l,selector_r){
     }
     //add touch listeners
     document.addEventListener('touchstart', handleTouchStart, false);
-    //document.addEventListener('touchmove', handleTouchMove, false);
+    document.addEventListener('touchmove', handleTouchMove, false);
     document.addEventListener('touchend', handleTouchEnd, false);
 }
 
@@ -3056,16 +3056,21 @@ function handleTouchStart(evt) {
     xi = firstTouch.clientX;
 }
 
-function handleTouchEnd(evt) {
+function handleTouchMove(evt) {
     const lastTouch = evt.touches[0];
-    let xf = lastTouch.clientX;
+    xf = lastTouch.clientX;
+}
 
+function handleTouchEnd(evt) {
     if (xi-xf>0) {
         console.log('Swipe Left');
+        prev_project();
     } else {
         console.log('Swipe Right');
+        next_project();
     }
     // Reset values or handle end of touch event
+    xi=0;xf=0;
     console.log('Touch ended');
 }
 
