@@ -1,7 +1,7 @@
-//declare globals and stuff
+//declare globals
 var screen_width, screen_height, isLandscape;   //screen info
 var mode=false; //dark mode by default
-var ctx_bg; //canvas context
+var ctx_bg, ctx_bb, ctx_tc, ctx_lc, ctx_rc; //canvas contexts
 //button selector vars
 var main_container_open = false;
 var current_container;
@@ -11,20 +11,23 @@ var selection_id=null;
 var project_displayed=false;
 var current_project=null;
 var y_coords;
+//touch position 
+var xi;
 //animation vars
 var keyframe=0;
 var animation_on=false;
 var animation=null;
 var animation_counter=0;
 var max_frames=0;
+var faded=0;
 //drawing shapes vars
 var o, chevrons;
-var  rhombus, arrows, tp, bt, ribbon_decorations, collumns, container_coords;
+var rhombus, arrows, tp, bt, ribbon_decorations, collumns, container_coords, back_button_cont_coords;
 var step, nav_step;
 var ribbons =[];
-var decoration_canvas_size;
+var decoration_canvas_size, back_button_canvas_size;
 //html elements
-var main_background, pseudo_background, nav_bar, toggle_button_container, div_content_box, toggle_canvas, main_decoration_canvas;
+var main_background, pseudo_background, nav_bar, toggle_button_container, div_content_box, toggle_canvas, main_decoration_canvas, back_button, back_button_canvas, title_canvas;
 var nav_buttons = [];
 var nav_button_decorations = [];
 var nav_buttons_text = [];
@@ -33,31 +36,31 @@ var toggle_text = [];
 var image_gallery = [
     //email
     {
-        nox:"img/email_nox_dark.png",
+        nox:"img/email_nox_light.png",
         lux_light:"img/email_lux_light.png",
         lux_dark:"img/email_lux_dark.png"
     },
     //github
     {
-        nox:"img/github_nox_dark.png",
+        nox:"img/github_nox_light.png",
         lux_light:"img/github_lux_light.png",
         lux_dark:"img/github_lux_dark.png"
     },
     //higginface
     {
-        nox:"img/hf_nox_dark.png",
+        nox:"img/hf_nox_light.png",
         lux_light:"img/hf_lux_light.png",
         lux_dark:"img/hf_lux_dark.png"
     },
     //discord
     {
-        nox:"img/discord_nox_dark.png",
+        nox:"img/discord_nox_light.png",
         lux_light:"img/discord_lux_light.png",
         lux_dark:"img/discord_lux_dark.png"
     },
     //itchio
     {
-        nox:"img/itchio_nox_dark.png",
+        nox:"img/itchio_nox_light.png",
         lux_light:"img/itchio_lux_light.png",
         lux_dark:"img/itchio_lux_dark.png"
     }
@@ -71,7 +74,8 @@ const no_shading_project_button = "0 0px 0px 0 rgba(0, 0, 0, 0.2), 0 0px 0px 0 r
 const shading_project_button = "-4px 8px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)";
 //main contnet
 const main_content = [
-    `<p id="about_text" class="text_content">Hey there.
+    `<p id="about_title" class="text_title"><b>About</b></p>
+    <p id="about_text" class="text_content">Hey there.
     <br>I'm interested in writing free, open source and efficient software that anyone can find both easy to use and friendly to tinker with. On the <b>PROJECTS</b> tab, you can find a few web demos of my more extensive projects, and you can find the rest on my various other pages, reachable from the <b>CONTACT</b> tab.
     <br>If you're a beginner in programming, do not be overwhelmed by the apparent complexity of some of the projects: they were all written with people like you in mind, making sure to comment and deobfuscate most lines of code even if it might be a slight disadvantage to actual code review. I don't have a favourite or preferred coding language, although most projects you'll see here are written in JavaScript to facilitate a beginner friendly aura, given the fact that JavaScript is usually considered the easiest and most forgiving language for any programmer starting out, as well as to facilitate both distribution (all devices have a web browser that can run the code, regardless of installed software and libraries, operating system or processor architecture) and get to use the built in browser capabilities, especially when it comes to user interface handling. On my github profile you might find projects written in Python, Java, or even scripting languages like Bash, and they will be just as thoroughly documented as the JavaScript ones.
     <br>I am mostly interested in machine learning and artificial intelligence, but you'll find plenty of other things in my 
@@ -79,7 +83,14 @@ const main_content = [
     <br>If you have any questions, bug reports, requests of taking part in your own projects or simply just wish to chat about anything that has to do computers don't hesitate to shoot me an email or a discord message. 
     <br>Thanks for checking my portfolio out!</p>`,
 
-    `<div id="project_selector">
+    `<p id="projects_title" class="text_title"><b>Projects</b></p>
+    <div id="selector_bar">
+        <canvas id="select_left" onclick="prev_project()"></canvas>
+        <canvas id="title_canvas"></canvas>
+        <canvas id="select_right" onclick="next_project()"></canvas>
+        <div id="project_title_container"><p id="project_title">Hell Raven</p></div>
+    </div>
+    <div id="project_selector">
         <canvas id="0_cv" class="project_selector_canvas" onclick="show_project(0)"></canvas>
         <p class="project_selector_text" id="0_pt" onclick="show_project(0)">MumbAI</p>
         <canvas id="1_cv" class="project_selector_canvas" onclick="show_project(1)"></canvas>
@@ -94,7 +105,8 @@ const main_content = [
     <canvas id="project_display"></canvas>
     <div id="project_display_text"></div>`,
     
-    `<p id="contact_text" class="text_content">
+    `<p id="contact_title" class="text_title"><b>Contact</b></p>
+    <p id="contact_text" class="text_content">
     <a href="mailto:yk3a4tgpd@mozmail.com?subject=Homepage Contact" class="link_content"><img src="" class="logos"> E-mail me!</a><br>
     <a href="https://github.com/archmagos-dominus" class="link_content"><img src="" class="logos"> Github repositories</a><br>
     <a href="https://huggingface.co/archmagos" class="link_content"><img src="" class="logos"> Hugginface repositories</a><br>
@@ -104,7 +116,7 @@ const main_content = [
 ];
 //project content
 const project_content = [
-    `<h1 class="subtitle">Project 1</h1>
+    `<h1 class="subtitle" id="subtitle_invisible_portrait">Pax Astrorum</h1>
         <p class="paragraph"> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA <a class="link" href=''>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</a> AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAA AAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -123,7 +135,7 @@ const project_content = [
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         </p>`,
-    `<h1 class="subtitle">Project 2</h1>
+    `<h1 class="subtitle" id="subtitle_invisible_portrait">Project 2</h1>
         <p class="paragraph"> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA <a class="link" href=''>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</a> AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAA AAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -142,7 +154,7 @@ const project_content = [
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         </p>
-        <h1 class="subtitle">AAAAAAAAAAAAAA</h1>
+        <h1 class="subtitle" id="subtitle_invisible_portrait">AAAAAAAAAAAAAA</h1>
         <p class="paragraph"> AAAAAAAAAAAAAAA AAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAA
@@ -156,7 +168,7 @@ const project_content = [
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</p>`,
-    `<h1 class="subtitle">Project 3</h1>
+    `<h1 class="subtitle" id="subtitle_invisible_portrait">Project 3</h1>
         <p class="paragraph"> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA <a class="link" href=''>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</a> AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAA AAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -175,7 +187,7 @@ const project_content = [
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         </p>`,
-    `<h1 class="subtitle">Project 4</h1>
+    `<h1 class="subtitle" id="subtitle_invisible_portrait">Project 4</h1>
         <p class="paragraph"> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA <a class="link" href=''>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</a> AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAA AAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -194,7 +206,7 @@ const project_content = [
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         </p>`,
-    `<h1 class="subtitle">Project 5</h1>
+    `<h1 class="subtitle" id="subtitle_invisible_portrait">Project 5</h1>
         <p class="paragraph"> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA <a class="link" href=''>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</a> AAAAAAAAAAAAAAA
         AAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAA AAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -223,8 +235,19 @@ function load_page() {
     position_elements();
 }
 
-//executes at any reload/resize of the page - same as load_page(), but without the need to load DOM elements
+//executes at any reload/resize of the page - same as load_page(), but without the need to load DOM elements and makes sure that any animations currently playing are not left hanging
 function reload_page() {
+    //animation reset
+    if (animation_on) {
+        animation_on=false;
+        keyframe=0;
+        animation_counter=0;
+        max_frames=0;
+        animation=null;
+        faded=0;
+    }
+    //remove any listeners
+    remove_listeners()
     //re-position all elements properly
     position_elements();
 }
@@ -239,11 +262,25 @@ function position_elements() {
     assign_colours();
     //check if you need to redraw the canvas (show_main_opened and show_main_initial is where the drawing and the positioning should happen)
     if (main_container_open) {
-        //draw open
-        show_main_opened();
+        //check orientation
+        if (isLandscape) {
+            //draw open
+            show_main_opened();
+        } else {
+            //draw open
+            show_main_opened_p();
+        }
+        
     } else {
-        //draw closed
-        show_main_intial();
+        //check orientation
+        if (isLandscape) {
+            //draw closed
+            show_main_intial();
+        } else {
+            //draw closed
+            show_main_intial_p();
+        }
+        
     }
 }
 
@@ -265,13 +302,16 @@ function load_elements() {
     toggle_button_container = document.getElementById("mode_button_container");
     toggle_canvas = document.getElementById("mode_button_canvas");
     main_decoration_canvas = document.getElementById("content_box_dec");
-    ctx_bg = main_decoration_canvas.getContext("2d");   //context for the main canvas
     nav_bar = document.getElementById("nav_bar");
     nav_buttons = document.getElementsByClassName("nav_button");
     nav_button_decorations = document.getElementsByClassName("nav_button_decoration");
     nav_buttons_text = document.getElementsByClassName("nav_button_text");
     div_content_box = document.getElementById("content_box");
-
+    back_button = document.getElementById("back_button");
+    back_button_canvas = document.getElementById("back_button_canvas");
+    //contexts
+    ctx_bg = main_decoration_canvas.getContext("2d");   //context for the main canvas
+    ctx_bb = back_button_canvas.getContext("2d");       //context for the back button canvas
     //preload images to prevent that slight jitter for a few ms until the images load in normal image operations
     for (let index = 0; index < image_gallery.length; index++) {
         //create an image object
@@ -364,15 +404,15 @@ function set_colours(mode) {
             //column lines
             Minerva='#C8CDD2';
             //container bg - parchment colour
-            Pomona="#C8CDD2";
+            Pomona="#393D47";//"#C8CDD2";
             //container decorations
-            Diana="#393D47";
+            Diana="#C8CDD2";//"#393D47";
             //content text
-            Quirinus="#393D47";
+            Quirinus="#C8CDD2";//"#393D47";
             //content link
-            Pontus="#393D47";
+            Pontus="#C8CDD2";//"#393D47";
             //content link (hover)
-            Salacia="#393D47";
+            Salacia="#C8CDD2";//"#393D47";
             //project selector button background
             Carmentis="#393D47";
             //project selector button decoration
@@ -390,7 +430,7 @@ function set_colours(mode) {
             //project link hover
             Janus='#C8CDD2';
             //scrollbar
-            document.querySelector(':root').style.setProperty('--scroll-thumb-color', Sol);
+            document.querySelector(':root').style.setProperty('--scroll-thumb-color', "#C8CDD2");
             break;
 
         case true:
@@ -464,7 +504,7 @@ function assign_colours() {
     toggle_button_container.style.backgroundColor=Trivia;
 }
 
-//function that handles the preliminary page display
+//function: handles the preliminary page display
 //it is mainly used to calculate sizes, positions and colours of all elements at the start
 function resize_page_elements() {
     //get current width
@@ -520,7 +560,7 @@ function resize_page_elements() {
         decoration_canvas_size = {
             w:main_decoration_canvas.offsetWidth,
             h:main_decoration_canvas.offsetHeight
-        }
+        };
         //nav_bar (centered in parent)
         nav_bar.style.position = "absolute";
         nav_bar.style.height = Math.floor(pseudo_background.offsetHeight*2/10) + "px";
@@ -549,20 +589,20 @@ function resize_page_elements() {
             nav_button_decorations[index].height = nav_buttons[index].style.height.replace('px','');
             nav_button_decorations[index].width = nav_buttons[index].style.width.replace('px','');
             //draw the decorations
-            decoration_start(nav_button_decorations[index], Venus);                 
+            decoration_start(nav_button_decorations[index], Venus);    //this is no longer needed i think?             
         }
         //place the text on the buttons
         for (let index = 0; index < nav_buttons_text.length; index++) {
             nav_buttons_text[index].style.fontSize = nav_button_decorations[index].offsetHeight/5 + "px";
             nav_buttons_text[index].style.position = "absolute";
-            //nav_buttons_text[index].style.height = nav_buttons[index].offsetHeight + "px"; //let the algorithm figure out the heigh, no reason to worry about it here
             nav_buttons_text[index].style.width = nav_buttons[index].style.width.replace('px','') + "px";
             nav_buttons_text[index].style.top = nav_button_decorations[index].style.height.replace('px','')/7+nav_buttons_text[index].offsetHeight/4 + "px";
             nav_buttons_text[index].style.left = "0px";
             nav_buttons_text[index].style.color=Venus;
             nav_buttons_text[index].style.visibility = "visible";       
         }
-
+        //make back button invisible (in case the portrait mode made it visible beofre)
+        back_button_canvas.style.visibility = "hidden";
         //check the status of the content container and arrange the elements accordingly
         if (!main_container_open) {
             //initialize the page elements after the container box has been opened
@@ -604,24 +644,50 @@ function resize_page_elements() {
         toggle_canvas.width = toggle_canvas.style.width.replace('px','');
         //create the 'LUX/NOX' button
         show_toggle_button_prt();
-
         let temp_x = (2*toggle_button_container.offsetTop) + toggle_button_container.offsetHeight;
         //main container decoration canvas
         main_decoration_canvas.style.position = "absolute";
         main_decoration_canvas.style.height = Math.floor(screen_height-(temp_x*2)) + "px";
         main_decoration_canvas.style.top = temp_x + "px";
         main_decoration_canvas.style.width = Math.floor(screen_width-toggle_button_container.offsetTop)+ "px";
-        main_decoration_canvas.style.left = '0px';
+        main_decoration_canvas.style.left = "0px"; //<test only|| -1*Math.floor(screen_width-toggle_button_container.offsetTop)+'px'; /////////////////////////////////////////////////reset this
         main_decoration_canvas.height = main_decoration_canvas.style.height.replace('px','');
         main_decoration_canvas.width = main_decoration_canvas.style.width.replace('px','');
         decoration_canvas_size = {
             w:main_decoration_canvas.offsetWidth,
             h:main_decoration_canvas.offsetHeight
         }
+        main_decoration_canvas.style.visibility = "visible";  //make it visible, since it sits outside the screen anyway
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //draw the decoration on the main canvas from the start
+        draw_portrait_canvas_decoration();
+        //back button container size and possitoning
+        back_button.style.position = "absolute";
+        back_button.style.height = Math.floor(decoration_canvas_size.h/14) + "px";
+        back_button.style.width = Math.floor(decoration_canvas_size.w/4) + "px";
+        back_button.style.top = main_decoration_canvas.offsetTop +  "px";
+        back_button.style.left = main_decoration_canvas.offsetLeft+'px';
+        back_button.style.visibility = "visible";
+        //back button canvas size and possitoning
+        back_button_canvas.style.position = "absolute";
+        back_button_canvas.style.height = Math.floor(decoration_canvas_size.h/14) + "px";
+        back_button_canvas.style.width = Math.floor(decoration_canvas_size.w/4) + "px";
+        back_button_canvas.style.top = decoration_canvas_size.h/15+ "px";
+        back_button_canvas.style.left = main_decoration_canvas.offsetLeft+'px';
+        back_button_canvas.height = Math.floor(decoration_canvas_size.h/12);
+        back_button_canvas.width = Math.floor(decoration_canvas_size.w/4);
+        back_button_canvas_size = {
+            w:back_button_canvas.offsetWidth,
+            h:back_button_canvas.offsetHeight
+        }
+        //back_button_canvas.style.backgroundImage=marble_noise;
+        back_button_canvas.style.visibility = "visible";
+        //create the back button
+        draw_back_button();
         //nav_bar (centered in parent)
         nav_bar.style.position = "absolute";
-        nav_bar.style.height = Math.floor(screen_height-(temp_x*2)) + "px";
-        nav_bar.style.top  = temp_x + "px";
+        nav_bar.style.height = main_decoration_canvas.offsetHeight+"px";
+        nav_bar.style.top  = main_decoration_canvas.offsetTop+"px";
         nav_bar.style.width = main_decoration_canvas.style.width.replace('px','') + "px";
         nav_bar.style.left ="0px";
         nav_bar.style.visibility = "visible";
@@ -630,9 +696,10 @@ function resize_page_elements() {
             nav_buttons[index].style.position = "absolute";
             nav_buttons[index].style.height = Math.floor(nav_bar.offsetHeight/5) + "px";
             nav_buttons[index].style.width = Math.floor(nav_bar.offsetHeight/2) + "px";
-            nav_buttons[index].style.top = Math.floor(nav_bar.offsetTop+(index*nav_bar.offsetWidth/3)) + "px";
+            nav_buttons[index].style.top = Math.floor(nav_buttons[index].offsetHeight+(index*nav_bar.offsetHeight/4)) + "px";
             nav_buttons[index].style.left = "0px";
             nav_buttons[index].style.backgroundColor=Neptune;
+            nav_buttons[index].style.backgroundImage=marble_noise;
             nav_buttons[index].style.visibility = "visible";
         }
         //nav_button_decorations (canvases around the buttons, used to draw decorations on them)
@@ -646,17 +713,15 @@ function resize_page_elements() {
             nav_button_decorations[index].height = nav_buttons[index].style.height.replace('px','');
             nav_button_decorations[index].width = nav_buttons[index].style.width.replace('px','');
             //draw the decorations
-            //we  left here     //////////////////////  ///////////////         /////////////////////////////// //////////////////////////////////////              //////////////////////
-            decoration_start(nav_button_decorations[index], Venus);   //redo the decoration to fit the new model              
-        }
-        //place the text on the buttons ////////////////////////  ///////////////         /////////////////////////////// //////////////////////////////////////       put the text futher left       
+            decoration_start_p(nav_button_decorations[index], Venus);            //this is no longer needed i think? 
+        }    
         for (let index = 0; index < nav_buttons_text.length; index++) {
-            nav_buttons_text[index].style.fontSize = nav_button_decorations[index].offsetHeight/5 + "px";
+            //nav_buttons_text[index].style.textAlign="left";
+            nav_buttons_text[index].style.fontSize = nav_button_decorations[index].offsetHeight/3.5 + "px";
             nav_buttons_text[index].style.position = "absolute";
-            //nav_buttons_text[index].style.height = nav_buttons[index].offsetHeight + "px"; //let the algorithm figure out the heigh, no reason to worry about it here
-            nav_buttons_text[index].style.width = nav_buttons[index].style.width.replace('px','') + "px";
-            nav_buttons_text[index].style.top = nav_button_decorations[index].style.height.replace('px','')/7+nav_buttons_text[index].offsetHeight/4 + "px";
-            nav_buttons_text[index].style.left = "0px";
+            nav_buttons_text[index].style.width = nav_buttons[index].style.width.replace('px','')-nav_buttons[index].style.width.replace('px','')/10-5.5*nav_buttons[index].style.width.replace('px','')/20+ "px";
+            nav_buttons_text[index].style.top = nav_buttons_text[index].offsetHeight/4-nav_button_decorations[index].style.height.replace('px','')/100 + "px";
+            nav_buttons_text[index].style.left = nav_buttons[index].style.width.replace('px','')/10+"px";
             nav_buttons_text[index].style.color=Venus;
             nav_buttons_text[index].style.visibility = "visible";
         }
@@ -664,16 +729,346 @@ function resize_page_elements() {
         //check the status of the content container and arrange the elements accordingly
         if (!main_container_open) {
             //initialize the page elements after the container box has been opened
-            show_main_intial(); //resize the canvas as 0,0 and add no elements to it
+            show_main_intial_p(); //buttons on x=0 and container canvas on x=-width CHECK IF DONE
         } else {
             //initialize the elements without the opening the container box
-            show_main_opened(); //canvas is max sized and all the elements are drawn on it
+            show_main_opened_p(); //buttons on x=-width and container canvas on x=0 CHECK IF DONE
         }
     }
 
 }
 
-//display the mode button on a landscape page
+//function: draws the back button (used for navigating in protrait mode)
+function draw_back_button() {
+    //calculate the extremes of the container
+    back_button_cont_coords = [
+        {
+            x:0,
+            y:0
+        },
+        {
+            x:back_button_canvas_size.w,
+            y:0
+        },
+        {
+            x:back_button_canvas_size.w,
+            y:back_button_canvas_size.h
+        },
+        {
+            x:0,
+            y:back_button_canvas_size.h
+        }
+    ];
+    //calculate a standard measure to help keep the scale of various elements similar
+    let el=back_button_canvas_size.h/9;
+    //calculate the coordinates for the various shapes which will be outlined
+    let outlined_shapes = [
+        //fist decoration shape
+        [
+            {
+                x:el,
+                y:el
+            },
+            {
+                x:4*el,
+                y:el
+            },
+            {
+                x:4*el,
+                y:3*el
+            },
+            {
+                x:3*el,
+                y:3*el
+            },
+            {
+                x:3*el,
+                y:2*el
+            },
+            {
+                x:2*el,
+                y:2*el
+            },
+            {
+                x:2*el,
+                y:4*el
+            },
+            {
+                x:5*el,
+                y:4*el
+            }
+        ],
+        //second decoartion shape
+        [
+            {
+                x:el,
+                y:5*el
+            },
+            {
+                x:4*el,
+                y:5*el
+            },
+            {
+                x:4*el,
+                y:7*el
+            },
+            {
+                x:3*el,
+                y:7*el
+            },
+            {
+                x:3*el,
+                y:6*el
+            },
+            {
+                x:2*el,
+                y:6*el
+            },
+            {
+                x:2*el,
+                y:8*el
+            },
+            {
+                x:5*el,
+                y:8*el
+            }
+        ],
+        //frst demarcation line
+        [
+            {
+                x:el,
+                y:0
+            },
+            {
+                x:el,
+                y:back_button_canvas_size.h
+            }
+        ],
+        //second demarcation line
+        [
+            {
+                x:5*el,
+                y:0
+            },
+            {
+                x:5*el,
+                y:back_button_canvas_size.h
+            }
+        ],
+        //top horizonal line
+        [
+            {
+                x:6*el,
+                y:el
+            },
+            {
+                x:back_button_canvas_size.w-el*5,
+                y:el
+            }
+        ],
+        //bottom horizontal line
+        [
+            {
+                x:6*el,
+                y:back_button_canvas_size.h-el
+            },
+            {
+                x:back_button_canvas_size.w-el*5,
+                y:back_button_canvas_size.h-el
+            }
+        ],
+    ];
+    //calculate the coords for the filled chevrons
+    let filled_shapes = [
+        [
+            {
+                x:back_button_canvas_size.w-el*1.5,
+                y:el
+            },
+            {
+                x:back_button_canvas_size.w-el*1.5,
+                y:2*el
+            },
+            {
+                x:back_button_canvas_size.w-el*4,
+                y:4.5*el
+            },
+            {
+                x:back_button_canvas_size.w-el*1.5,
+                y:7*el
+            },
+            {
+                x:back_button_canvas_size.w-el*1.5,
+                y:8*el
+            },
+            {
+                x:back_button_canvas_size.w-el*5,
+                y:4.5*el
+            }
+        ],
+        [
+            {
+                x:back_button_canvas_size.w-el*3.5,
+                y:el
+            },
+            {
+                x:back_button_canvas_size.w-el*3.5,
+                y:el*2
+            },
+            {
+                x:back_button_canvas_size.w-el*6,
+                y:el*4.5
+            },
+            {
+                x:back_button_canvas_size.w-el*3.5,
+                y:el*7
+            },
+            {
+                x:back_button_canvas_size.w-el*3.5,
+                y:el*8
+            },
+            {
+                x:back_button_canvas_size.w-el*7,
+                y:el*4.5
+            }
+        ],
+        [
+            {
+                x:back_button_canvas_size.w-el*1.5,
+                y:el*3
+            },
+            {
+                x:back_button_canvas_size.w-el*3,
+                y:el*4.5
+            },
+            {
+                x:back_button_canvas_size.w-el*1.5,
+                y:el*6
+            }
+        ]
+    ];
+    //clear the canvas
+    ctx_bb.clearRect(0,0,back_button_canvas_size.w,back_button_canvas_size.h);
+    //calculate line width
+    ctx_bb.lineWidth=el/2;
+    //draw the container bg
+    ctx_bb.beginPath();
+    ctx_bb.moveTo(back_button_cont_coords[0].x, back_button_cont_coords[0].y);
+    ctx_bb.lineTo(back_button_cont_coords[1].x, back_button_cont_coords[1].y);
+    ctx_bb.lineTo(back_button_cont_coords[2].x, back_button_cont_coords[2].y);
+    ctx_bb.lineTo(back_button_cont_coords[3].x, back_button_cont_coords[3].y);
+    ctx_bb.fillStyle=Neptune;
+    ctx_bb.fill();
+    //VENUS FOR DECORATIONS 
+    //draw the outlined shapes
+    ctx_bb.strokeStyle=Venus;
+    for (let index = 0; index < outlined_shapes.length; index++) {
+        ctx_bb.beginPath();
+        ctx_bb.moveTo(outlined_shapes[index][0].x,outlined_shapes[index][0].y);
+        for (let l = 1; l < outlined_shapes[index].length; l++) {
+            ctx_bb.lineTo(outlined_shapes[index][l].x, outlined_shapes[index][l].y);
+        }
+        ctx_bb.stroke();
+    }
+    //draw the filled shapes
+    ctx_bb.fillStyle=Venus;
+    for (let index = 0; index < filled_shapes.length; index++) {
+        ctx_bb.beginPath();
+        ctx_bb.moveTo(filled_shapes[index][0].x,filled_shapes[index][0].y);
+        for (let l = 1; l < filled_shapes[index].length; l++) {
+            ctx_bb.lineTo(filled_shapes[index][l].x, filled_shapes[index][l].y);
+        }
+        ctx_bb.fill();
+    }
+}
+
+//function: draws the main canvas decorations for portrait mode
+function draw_portrait_canvas_decoration() {
+    //calculate padding size
+    let padding_size = decoration_canvas_size.h/30;
+    //calculate the extremes of the container
+    container_coords = [
+        {
+            x:0,
+            y:0
+        },
+        {
+            x:main_decoration_canvas.offsetWidth,
+            y:0
+        },
+        {
+            x:main_decoration_canvas.offsetWidth,
+            y:main_decoration_canvas.offsetHeight
+        },
+        {
+            x:0,
+            y:main_decoration_canvas.offsetHeight
+        }
+    ];
+    //calculate the coordinates of the container decorations
+    decoration_coords=[
+        {
+            x:container_coords[3].x,
+            y:container_coords[3].y - padding_size
+        },
+        {
+            x:container_coords[2].x - padding_size/2,
+            y:container_coords[2].y - padding_size
+        },
+        {
+            x:container_coords[2].x - padding_size/2,
+            y:container_coords[2].y - padding_size/2
+        },
+        {
+            x:container_coords[2].x - padding_size,
+            y:container_coords[2].y - padding_size/2
+        },
+        {
+            x:container_coords[1].x - padding_size,
+            y:container_coords[1].y + padding_size/2
+        },
+        {
+            x:container_coords[1].x - padding_size/2,
+            y:container_coords[1].y + padding_size/2
+        },
+        {
+            x:container_coords[1].x - padding_size/2,
+            y:container_coords[1].y + padding_size
+        },
+        {
+            x:container_coords[0].x,
+            y:container_coords[0].y + padding_size
+        }
+    ];
+    //calculate the size and possition of the content box
+    div_content_box.style.position = "absolute";
+    div_content_box.style.top = main_decoration_canvas.offsetTop+container_coords[0].y+2*padding_size + "px";
+    div_content_box.style.left = main_decoration_canvas.offsetLeft+container_coords[0].x+2*padding_size + "px";
+    div_content_box.style.height = container_coords[2].y-container_coords[0].y-4*padding_size + "px";
+    div_content_box.style.width = container_coords[2].x-container_coords[0].x-4*padding_size + "px";
+    //clear the canvas
+    ctx_bg.clearRect(0,0,decoration_canvas_size.w,decoration_canvas_size.h);
+    //calculate line width
+    ctx_bg.lineWidth=padding_size/5;
+    //draw the container bg
+    ctx_bg.beginPath();
+    ctx_bg.moveTo(container_coords[0].x, container_coords[0].y);
+    ctx_bg.lineTo(container_coords[1].x, container_coords[1].y);
+    ctx_bg.lineTo(container_coords[2].x, container_coords[2].y);
+    ctx_bg.lineTo(container_coords[3].x, container_coords[3].y);
+    ctx_bg.fillStyle=Pomona;
+    ctx_bg.fill();
+    //draw container decorations
+    ctx_bg.beginPath();
+    ctx_bg.moveTo(decoration_coords[0].x, decoration_coords[0].y);
+    for (let index = 1; index < decoration_coords.length; index++) {
+        ctx_bg.lineTo(decoration_coords[index].x, decoration_coords[index].y)
+    }
+    ctx_bg.strokeStyle=Diana;
+    ctx_bg.stroke();
+}
+
+//function: displays the mode button on a landscape page
 function show_toggle_button_lnd(){
     //longitudinal canvas for landscape mode
     let context = toggle_canvas.getContext("2d");
@@ -773,6 +1168,7 @@ function show_toggle_button_lnd(){
     context.fill();
 }
 
+//function: displays the mode button on a portrait page
 function show_toggle_button_prt(){
     //size up the canvas according to the width and height, and position it vertically in the top right corner
     let context = toggle_canvas.getContext("2d");
@@ -869,7 +1265,7 @@ function show_toggle_button_prt(){
     }
 }
 
-//define how a decoration canvas should look at initialization time
+//function: define how a button's decoration canvas should look (landscape - standard)
 function decoration_start(button_id, new_colour) {
     var current_decoration = button_id;
     //get it's context
@@ -894,15 +1290,15 @@ function decoration_start(button_id, new_colour) {
             context.arc(x_coords[i]+temp_y/2, temp_y*(j+0.5), temp_y/3, 0, 2 * Math.PI, false);
             context.fillStyle = (mode)?randomize_colour(new_colour):new_colour;
             context.fill();
-            console.log("beep?",(mode))
         }
     }
     //draw the top/bottom lines
-    context.beginPath();
     context.lineWidth = temp_y/2;
+    context.strokeStyle = new_colour;
+    context.fillStyle = new_colour;
+    context.beginPath();
     context.moveTo(4.5*temp_x,temp_y/2);
     context.lineTo(15.5*temp_x,temp_y/2);
-    context.strokeStyle = new_colour;
     context.stroke();
 
     context.beginPath();
@@ -915,7 +1311,6 @@ function decoration_start(button_id, new_colour) {
     context.moveTo(4.5*temp_x,temp_y*2.5);
     context.lineTo(4.5*temp_x,temp_y*4.5);
     context.lineTo(5.5*temp_x,temp_y*3.5);
-    context.fillStyle = new_colour;
     context.fill();
 
     context.beginPath();
@@ -1123,7 +1518,7 @@ function decoration_start(button_id, new_colour) {
     })
 }
 
-//define how a decoration canvas should look after the button is clciked
+//function: define how a button's decoration canvas should look (landscape - clicked)
 function decoration_clicked(button_id, new_colour){
     let current_decoration = button_id;
     //get it's context
@@ -1376,7 +1771,455 @@ function decoration_clicked(button_id, new_colour){
     })
 }
 
-//what to do when a nav button is clicked
+//function: define how a button's decoration canvas should look (portrait - standard)
+function decoration_start_p(button_id, new_colour) {
+    var current_decoration = button_id;
+    //get it's context
+    const context = current_decoration.getContext("2d");
+    //clear the canvas
+    context.clearRect(0, 0, current_decoration.width, current_decoration.height);
+    //maybe set width and heigth
+    //x_coords for the cirlce rows
+    var temp_x = current_decoration.offsetWidth/20;
+    var temp_y = current_decoration.offsetHeight/7;
+    var x_coords = [
+        16*temp_x,
+        19*temp_x
+    ];
+    //draw the 2 columns of circles
+    for (let i = 0; i < 2; i++) {
+        //7 circles per colmn
+        for (let j = 0; j < 7; j++) {
+            context.beginPath();
+            context.arc(x_coords[i]+temp_y/2, temp_y*(j+0.5), temp_y/3, 0, 2 * Math.PI, false);
+            context.fillStyle = (mode)?randomize_colour(new_colour):new_colour;
+            context.fill();
+        }
+    }
+    //draw the top/bottom lines
+    context.lineWidth = temp_y/2;
+    context.strokeStyle = new_colour;
+    context.beginPath();
+    context.moveTo(temp_x,temp_y/2);
+    context.lineTo(15.5*temp_x,temp_y/2);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(temp_x,current_decoration.height-temp_y/2);
+    context.lineTo(15.5*temp_x,current_decoration.height-temp_y/2);
+    context.stroke();
+
+    //draw the arrows
+    context.fillStyle = new_colour;
+    context.beginPath();
+    context.moveTo(temp_x,temp_y*2.5);
+    context.lineTo(temp_x,temp_y*4.5);
+    context.lineTo(2*temp_x,temp_y*3.5);
+    context.fill();
+    context.beginPath();
+    context.moveTo(current_decoration.width-4.5*temp_x,temp_y*2.5);
+    context.lineTo(current_decoration.width-4.5*temp_x,temp_y*4.5);
+    context.lineTo(current_decoration.width-5.5*temp_x,temp_y*3.5);
+    context.fill();
+
+    //draw the roman style decorations
+    var line_width = temp_y/8; //slim enough so that all details are visible
+    context.lineWidth=line_width;
+    //calculate the total number of deocrations
+    var dec_n = 4;
+    //calc some stuff here to take some pressure from the loops
+    var temp_decoration_total_size = (current_decoration.height/4); //size of the alloted space
+    var temp_decoration_actual_size = (temp_decoration_total_size*3/4); //size of the square
+    var temp_x3 = 17*temp_x + (temp_decoration_total_size-temp_decoration_actual_size)/2;
+    var temp_x4 = 19*temp_x - (temp_decoration_total_size-temp_decoration_actual_size)/2;
+    var temp_y_coef = ((temp_decoration_total_size-temp_decoration_actual_size+(line_width/2))/2);
+    var sqrs=[];
+    //draw the squares cullumn on the right
+    for (let i = 0; i < dec_n; i++) {
+        //get a colour
+        var colour = (mode)?randomize_colour(new_colour):new_colour;
+        context.strokeStyle =colour;
+        //draw a square
+        context.beginPath();
+        context.moveTo(temp_x3, (i*temp_decoration_total_size)+temp_y_coef);
+        context.lineTo(temp_x4, (i*temp_decoration_total_size)+temp_y_coef);
+        context.lineTo(temp_x4, ((i+1)*temp_decoration_total_size)-temp_y_coef);
+        context.lineTo(temp_x3, ((i+1)*temp_decoration_total_size)-temp_y_coef);
+        context.lineTo(temp_x3, (i*temp_decoration_total_size)+temp_y_coef);
+        context.stroke();
+        //add the coords to the sqr array
+        sqrs.push({
+            x: temp_x3,
+            y: (i*temp_decoration_total_size)+temp_y_coef,
+            w: temp_decoration_actual_size,
+            h: temp_decoration_actual_size,
+            c: colour
+        });
+    }
+    line_width = temp_decoration_actual_size/11;
+    context.lineWidth = line_width;
+    //draw interior lines
+    sqrs.forEach((square, pos)=>{
+        context.strokeStyle = square.c;
+        if (pos%2==0) {
+            //even positions are horizontal
+            //first horizontal lines
+            context.beginPath();
+            context.moveTo(square.x, square.y+6*temp_decoration_actual_size/11-line_width);
+            context.lineTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+6*temp_decoration_actual_size/11-line_width);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+7*temp_decoration_actual_size/11-line_width/2, square.y+6*temp_decoration_actual_size/11-line_width);
+            context.lineTo(square.x+square.w, square.y+6*temp_decoration_actual_size/11-line_width);
+            context.stroke();
+
+            //first vertical lines
+            context.beginPath();
+            context.moveTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width);
+            context.lineTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+7*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width);
+            context.lineTo(square.x+7*temp_decoration_actual_size/11-line_width, square.y+9*(temp_decoration_actual_size/11));
+            context.stroke();
+
+            //second horizontal lines
+            context.beginPath();
+            context.moveTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+7*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11+line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+7*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11+line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            //second vertical lines
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11, square.y+3.5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11, square.y+7.5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11, square.y+3.5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11, square.y+7.5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+        } else {
+            //uneven positions are vertical
+            //first vertical lines
+            context.beginPath();
+            context.moveTo(square.x+6*temp_decoration_actual_size/11-line_width, square.y);
+            context.lineTo(square.x+6*temp_decoration_actual_size/11-line_width, square.y+5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+6*temp_decoration_actual_size/11-line_width, square.y+7*(temp_decoration_actual_size/11)-line_width/2);
+            context.lineTo(square.x+6*temp_decoration_actual_size/11-line_width, square.y+square.h-line_width/2);
+            context.stroke();
+
+            //first horizontal lines
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width, square.y+5*temp_decoration_actual_size/11-3*line_width/4);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11, square.y+5*temp_decoration_actual_size/11-3*line_width/4);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width, square.y+7*temp_decoration_actual_size/11-3*line_width/4);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11, square.y+7*temp_decoration_actual_size/11-3*line_width/4);
+            context.stroke();
+
+            //second horizontal lines
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+5*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11-line_width/3, square.y+5*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11-line_width/3, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+7*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11-line_width/3, square.y+7*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11-line_width/3, square.y+9*temp_decoration_actual_size/11);
+            context.stroke();
+
+            //second vertical lines
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11);
+            context.lineTo(square.x+3.5*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11);
+            context.lineTo(square.x+7.5*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+3.5*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+7.5*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+        }
+    })
+}
+
+//function: define how a button's decoration canvas should look (landscape - clicked)
+function decoration_clicked_p(button_id, new_colour){
+    let current_decoration = button_id;
+    //get it's context
+    const context = current_decoration.getContext("2d");
+    //clear the canvas
+    context.clearRect(0, 0, current_decoration.width, current_decoration.height);
+    //maybe set width and heigth
+    //x_coords for the cirlce rows
+    let temp_x = current_decoration.offsetWidth/20;
+    let temp_y = current_decoration.offsetHeight/7;
+    let x_coords = [
+        16*temp_x,
+        19*temp_x
+    ];
+    //draw teh 4 columns of circles
+    for (let i = 0; i < 2; i++) {
+        //7 circles per colmn
+        for (let j = 0; j < 7; j++) {
+            context.beginPath();
+            context.arc(x_coords[i]+temp_y/2, temp_y*(j+0.5), temp_y/3, 0, 2 * Math.PI, false);
+            context.fillStyle = new_colour;
+            context.fill();
+        }
+    }
+    //draw the top/bottom lines
+    context.lineWidth = temp_y/2;
+    context.strokeStyle = new_colour;
+    context.fillStyle = new_colour;
+    context.beginPath();
+    context.moveTo(4.5*temp_x,temp_y/2);
+    context.lineTo(15.5*temp_x,temp_y/2);
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(4.5*temp_x,current_decoration.height-temp_y/2);
+    context.lineTo(15.5*temp_x,current_decoration.height-temp_y/2);
+    context.stroke();
+
+    //draw the arrows
+    context.beginPath();
+    context.moveTo(4.5*temp_x,temp_y*2.5);
+    context.lineTo(4.5*temp_x,temp_y*4.5);
+    context.lineTo(5.5*temp_x,temp_y*3.5);
+    context.fill();
+
+    context.beginPath();
+    context.moveTo(current_decoration.width-4.5*temp_x,temp_y*2.5);
+    context.lineTo(current_decoration.width-4.5*temp_x,temp_y*4.5);
+    context.lineTo(current_decoration.width-5.5*temp_x,temp_y*3.5);
+    context.fill();
+
+    //draw the roman style decorations
+    let line_width = temp_y/8; //slim enough so that all details are visible
+    context.lineWidth=line_width;
+    //calculate the total number of deocrations
+    let dec_n = 4;
+    //calc some stuff here to take some pressure from the loops
+    let temp_decoration_total_size = (current_decoration.height/4); //size of the alloted space
+    let temp_decoration_actual_size = (temp_decoration_total_size*3/4); //size of the square
+    let temp_x3 = 17*temp_x + (temp_decoration_total_size-temp_decoration_actual_size)/2;
+    let temp_x4 = 19*temp_x - (temp_decoration_total_size-temp_decoration_actual_size)/2;
+    let temp_y_coef = ((temp_decoration_total_size-temp_decoration_actual_size+(line_width/2))/2);
+    let sqrs=[];
+    //draw the right column of squares
+    for (let i = 0; i < dec_n; i++) {
+        //get a colour
+        let colour = new_colour;
+        context.strokeStyle = colour;
+        //draw a square
+        context.beginPath();
+        context.moveTo(temp_x3, (i*temp_decoration_total_size)+temp_y_coef);
+        context.lineTo(temp_x4, (i*temp_decoration_total_size)+temp_y_coef);
+        context.lineTo(temp_x4, ((i+1)*temp_decoration_total_size)-temp_y_coef);
+        context.lineTo(temp_x3, ((i+1)*temp_decoration_total_size)-temp_y_coef);
+        context.lineTo(temp_x3, (i*temp_decoration_total_size)+temp_y_coef);
+        context.stroke();
+        //add the coords to the sqr array
+        sqrs.push({
+            x: temp_x3,
+            y: (i*temp_decoration_total_size)+temp_y_coef,
+            w: temp_decoration_actual_size,
+            h: temp_decoration_actual_size,
+            c: colour
+        });
+    }
+    line_width = temp_decoration_actual_size/11;
+    context.lineWidth = line_width;
+    //draw interior lines
+    sqrs.forEach((square, pos)=>{
+        context.strokeStyle = square.c;
+        if (pos%2==0) {
+            //even positions are horizontal
+            //first horizontal lines
+            context.beginPath();
+            context.moveTo(square.x, square.y+6*temp_decoration_actual_size/11-line_width);
+            context.lineTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+6*temp_decoration_actual_size/11-line_width);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+7*temp_decoration_actual_size/11-line_width/2, square.y+6*temp_decoration_actual_size/11-line_width);
+            context.lineTo(square.x+square.w, square.y+6*temp_decoration_actual_size/11-line_width);
+            context.stroke();
+
+            //first vertical lines
+            context.beginPath();
+            context.moveTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width);
+            context.lineTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+7*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width);
+            context.lineTo(square.x+7*temp_decoration_actual_size/11-line_width, square.y+9*(temp_decoration_actual_size/11));
+            context.stroke();
+
+            //second horizontal lines
+            context.beginPath();
+            context.moveTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+7*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11+line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+5*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+7*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11+line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            //second vertical lines
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11, square.y+3.5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11, square.y+7.5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11, square.y+3.5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11, square.y+7.5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+        } else {
+            //uneven positions are vertical
+            //first vertical lines
+            context.beginPath();
+            context.moveTo(square.x+6*temp_decoration_actual_size/11-line_width, square.y);
+            context.lineTo(square.x+6*temp_decoration_actual_size/11-line_width, square.y+5*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+6*temp_decoration_actual_size/11-line_width, square.y+7*(temp_decoration_actual_size/11)-line_width/2);
+            context.lineTo(square.x+6*temp_decoration_actual_size/11-line_width, square.y+square.h-line_width/2);
+            context.stroke();
+
+            //first horizontal lines
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width, square.y+5*temp_decoration_actual_size/11-3*line_width/4);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11, square.y+5*temp_decoration_actual_size/11-3*line_width/4);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width, square.y+7*temp_decoration_actual_size/11-3*line_width/4);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11, square.y+7*temp_decoration_actual_size/11-3*line_width/4);
+            context.stroke();
+
+            //second horizontal lines
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+5*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11-line_width/3, square.y+5*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11-line_width/3, square.y+2*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+7*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11-line_width/3, square.y+7*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+9*temp_decoration_actual_size/11-line_width/3, square.y+9*temp_decoration_actual_size/11);
+            context.stroke();
+
+            //second vertical lines
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11);
+            context.lineTo(square.x+3.5*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11);
+            context.lineTo(square.x+7.5*temp_decoration_actual_size/11-line_width/2, square.y+2*temp_decoration_actual_size/11);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+2*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+3.5*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(square.x+9*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.lineTo(square.x+7.5*temp_decoration_actual_size/11-line_width/2, square.y+9*temp_decoration_actual_size/11-line_width/2);
+            context.stroke();
+        }
+    })
+}
+
+//what to do when a nav button is clicked  //TODO
 function main_button_clicked(selection){
     //button attributes
     let current_obj = document.getElementById(selection);
@@ -1393,20 +2236,25 @@ function main_button_clicked(selection){
 
     //initialization check
     if (!main_container_open) {  
-        //delete shading off selection button
-        current_obj.style.boxShadow = no_shading_nav_button; 
-        //make it the marble colour
-        current_obj.style.backgroundColor = "#00000000"; // Maribel+"00";
-        //change text to plumbum
-        current_txt.style.color = Vulcan;
-        //redo decorations in plumbum colour
-        decoration_clicked(current_dec,Vulcan);
-        //play the initialization animation
-        open_main_container();        
+        
+        if (isLandscape) {
+            //delete shading off selection button
+            current_obj.style.boxShadow = no_shading_nav_button; 
+            //make it the marble colour
+            current_obj.style.backgroundColor = "#00000000"; // Maribel+"00";
+            //change text to plumbum
+            current_txt.style.color = Vulcan;
+            //redo decorations in plumbum colour
+            decoration_clicked(current_dec,Vulcan);
+            //play the initialization animation
+            open_main_container();   
+        } else {
+            //play the initialization animation
+            open_main_container_p();                                                                                                                         
+        }
         //store the current selection in memory
         current_container=selection;
         prev_selection=selection;
-
     } else {
         //check if the current selection is the current one
         if (current_container==selection) {
@@ -1415,11 +2263,19 @@ function main_button_clicked(selection){
             current_obj.style.boxShadow = shading_nav_button; 
             current_obj.style.backgroundColor = Neptune;
             current_txt.style.color = Venus;
-            decoration_start(current_dec,Venus);
-            ////fade out container content
-            fade_out_container_content();
-            ////play the closing animation
-            close_main_container();
+            if (isLandscape) {
+                decoration_start(current_dec,Venus);
+                //fade out container content
+                fade_out_container_content();
+                //play the closing animation
+                close_main_container();   
+            } else {    //in portrait it works with a back button now
+                // decoration_start_p(current_dec,Venus);
+                // //fade out container content
+                // fade_out_container_content();
+                // //play the closing animation
+                // close_main_container_p();                                                                                                                     
+            }
             //reset the current selection var
             current_container=null;
             prev_selection=null;
@@ -1427,7 +2283,6 @@ function main_button_clicked(selection){
         } else {
             //store the id in memory
             selection_id=selection;
-            
             let prev_obj = document.getElementById(prev_selection);
             let prev_dec = document.getElementById(prev_selection+"_dec");
             let prev_txt = document.getElementById(prev_selection+"_txt");
@@ -1436,33 +2291,33 @@ function main_button_clicked(selection){
             prev_obj.style.boxShadow = shading_nav_button; 
             prev_obj.style.backgroundColor = Neptune;
             prev_txt.style.color = Venus;
-            decoration_start(prev_dec,Venus);
+            if (isLandscape) {
+                decoration_start(prev_dec,Venus);
+            } else {
+                //decoration_start_p(prev_dec,Venus);
+            }
+            //set the 'selected' stly to the new selected button
             current_obj.style.boxShadow = no_shading_nav_button; 
             //make it the marble colour
             current_obj.style.backgroundColor = "#00000000";//makes it transparent // Maribel+"00";
             //change text to plumbum
             current_txt.style.color = Vulcan;
             //redo decorations in plumbum colour
-            decoration_clicked(current_dec,Vulcan);
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ////fade out container content
-            //fade_out_container_content();
-            ////fade in the new content
-            //fade_in_container_content();
-            //shit timing, instead make a special function that does just this
+            if (isLandscape) {
+                decoration_clicked(current_dec,Vulcan);
+            } else {//in portrait it works with back button
+                //decoration_clicked_p(current_dec,Vulcan);
+            }
+            //function handling the correct timing in swithcing the contents
             switch_contents();
-
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             //store the current selection in memory
             current_container=selection;
             prev_selection=selection;
         }
     }
-
-    
 }
 
-//opening the main container
+//opening the main container    //TODO
 function open_main_container() {
     //set the var
     main_container_open=true;
@@ -1475,20 +2330,45 @@ function open_main_container() {
     //keyframe 5 - move the roof up and the other details
     animation = "main_cont_in";
     animate();
-    //show_main_opened();//for debug
 }
 
-//closing the main container
+//back button functionality     //TODO
+function back_button_clicked() {
+    remove_listeners()
+    if (animation_on) {
+        return;
+    } else {
+        close_main_container_p();
+    }
+}
+
+//closing the main container    //TODO
 function close_main_container(){
     //set the var
     main_container_open=false;
     //start the reverse animation
     animation = "main_cont_out";
     animate();
-    //show_main_intial();//for debug
 }   
 
-//showing the menu in the intial state
+//for portrait, TODO once we are done cleaning up the landscape ones
+function open_main_container_p() {
+     //set the var
+     main_container_open=true;
+     //start the animation
+     animation = "main_cont_in_p";
+     animate();
+}
+
+function close_main_container_p() {
+    //set the var
+    main_container_open=false;
+    //start the reverse animation
+    animation = "main_cont_out_p";
+    animate();
+}
+
+//function: shows the menu in the intial state (landscape)
 function show_main_intial() {
     //show the initial state
     //place the nav bar
@@ -1504,7 +2384,23 @@ function show_main_intial() {
     //none since it's not open
 }
 
-//showing the menu in the final state 
+//function: shows the menu in the intial state (portrait)
+function show_main_intial_p() {
+    //show the initial state
+    //place the nav bar
+    nav_bar.style.top = (2*toggle_button_container.offsetTop) + toggle_button_container.offsetHeight + "px";
+    //draw the button decorations as 'initial'
+    for (let index = 0; index < nav_button_decorations.length; index++) {
+        //draw the decorations
+        decoration_start_p(nav_button_decorations[index], Venus);                 
+    }
+    //move the content container to the left
+    main_decoration_canvas.style.left = -1*Math.floor(screen_width-toggle_button_container.offsetTop)+'px';
+    //move the back button to the same position
+    back_button_canvas.style.left = main_decoration_canvas.offsetLeft+'px';
+}
+
+//function: shows the menu in the final state (landscape)
 function show_main_opened() {
     //show the opened state
     //place the nav bar on top
@@ -1513,21 +2409,19 @@ function show_main_opened() {
     for (let index = 0; index < nav_button_decorations.length; index++) {
         //chekc if it's selected
         if (index==selection_id) {
-            //set the bg
             //delete shading off selection button
             nav_buttons[index].style.boxShadow = no_shading_nav_button; 
-            //make it the marble colour
-            nav_buttons[index].style.backgroundColor = "#00000000"; // Maribel+"00";
+            //make it transparent
+            nav_buttons[index].style.backgroundColor = "#00000000";
             //change text to plumbum
             nav_buttons_text[index].style.color = Vulcan;
             //draw the decoration
             decoration_clicked(nav_button_decorations[index], Vulcan);
         } else {
-            //set the bg
             //delete shading off selection button
             nav_buttons[index].style.boxShadow = shading_nav_button; 
-            //make it the marble colour
-            nav_buttons[index].style.backgroundColor = Neptune; // Maribel+"00";
+            //make it the Neptune colour
+            nav_buttons[index].style.backgroundColor = Neptune; 
             //change text to plumbum
             nav_buttons_text[index].style.color = Venus;
             //draw the decoration
@@ -1536,6 +2430,25 @@ function show_main_opened() {
     }
     //draw the main canvas in the final state
     draw_decoration_canvas_opened();
+    //show the content
+    show_container_content();
+}
+
+//function: shows the menu in the final state (portrait) //TODO
+function show_main_opened_p() {
+    //show the opened state
+    //place the nav bar
+    nav_bar.style.top = (2*toggle_button_container.offsetTop) + toggle_button_container.offsetHeight + "px"; //not nedded?
+    nav_bar.style.left = -1*nav_bar.offsetWidth + "px";
+    //draw the button decorations as 'initial' (we'll do this in the 'back' animation)
+    // for (let index = 0; index < nav_button_decorations.length; index++) {
+    //     //draw the decorations
+    //     decoration_start_p(nav_button_decorations[index], Venus);                 
+    // }
+    //move the content container to the opened position
+    main_decoration_canvas.style.left = '0px';
+    //move the back button to the same position
+    back_button_canvas.style.left = '0px';
     //show the content
     show_container_content();
 }
@@ -1559,6 +2472,12 @@ function fade_in_container_content(){
             div_content_box.style.opacity = opac;
         } else {
             div_content_box.style.opacity = 1;
+            keyframe=0;
+            animation_counter=0;
+            max_frames=0;
+            animation=null;
+            animation_on=false;
+            faded=0;
             clearInterval(fade_in_effect);
         }   
     }, 10);
@@ -1578,9 +2497,11 @@ function fade_out_container_content() {
         } else {
             div_content_box.style.opacity = 0;
             div_content_box.style.visibility="hidden";
+            faded=1;    //set the faded var to 1 (content fading complete)
             clearInterval(fade_out_effect);
         }   
     }, 10);
+    
 }
 
 function switch_contents(){
@@ -1639,99 +2560,737 @@ function show_container_content(){
     div_content_box.style.opacity = 1;
 }
 
+//draws the decocration for the central part of the selector bar
+function draw_title_decor() {
+    //create horizontal lines
+    let line_w=title_canvas.height/25;
+    let lines = [
+        {
+            xi: title_canvas.width/10,
+            xf: title_canvas.width*9/10,
+            y: line_w
+        },
+        {
+            xi: title_canvas.width*1.5/10,
+            xf: title_canvas.width*8.5/10,
+            y: title_canvas.height*2/3 //maybe plus/minus line width
+        },  
+        {
+            xi: title_canvas.width/3,
+            xf: title_canvas.width*2/3,
+            y: title_canvas.height-line_w
+        },
+    ];
+    //create decorative rhombi
+    let rhombi = [
+        [
+            {x:title_canvas.width/3-2*title_canvas.height/12,   y:title_canvas.height*9/12},
+            {x:title_canvas.width/3-title_canvas.height/12,   y:title_canvas.height*5/6},
+            {x:title_canvas.width/3-2*title_canvas.height/12,   y:title_canvas.height*11/12},
+            {x:title_canvas.width/3-3*title_canvas.height/12,   y:title_canvas.height*5/6}
+        ],
+        [
+            {x:2*title_canvas.width/3+2*title_canvas.height/12,   y:title_canvas.height*9/12},
+            {x:2*title_canvas.width/3+title_canvas.height/12,   y:title_canvas.height*5/6},
+            {x:2*title_canvas.width/3+2*title_canvas.height/12,   y:title_canvas.height*11/12},
+            {x:2*title_canvas.width/3+3*title_canvas.height/12,   y:title_canvas.height*5/6}
+        ]
+    ];
+
+    //using the selection_id val, draw the 3 numerals
+    draw_decoration_numeral(current_project,true,1);
+    //draw the left numeral (if applicable)
+    if (current_project-1>-1) {
+        draw_decoration_numeral(current_project-1,false,0);
+    }
+    //draw the right numeral  (if applicable)
+    if (current_project+1<project_content.length) {
+        draw_decoration_numeral(current_project+1,false,2);
+    }
+
+    //draw the lines
+    for (let index = 0; index < lines.length; index++) {
+        ctx_tc.lineWidth=line_w;
+        ctx_tc.beginPath();
+        ctx_tc.moveTo(lines[index].xi, lines[index].y);
+        ctx_tc.lineTo(lines[index].xf, lines[index].y);
+        ctx_tc.strokeStyle=Neptune;
+        ctx_tc.stroke();
+    }
+    //draw the decorative rhombi
+    for (let i = 0; i < rhombi.length; i++) {
+        ctx_tc.lineWidth=line_w;
+        ctx_tc.beginPath();
+        ctx_tc.moveTo(rhombi[i][0].x, rhombi[i][0].y);
+        ctx_tc.lineTo(rhombi[i][1].x, rhombi[i][1].y);
+        ctx_tc.lineTo(rhombi[i][2].x, rhombi[i][2].y);
+        ctx_tc.lineTo(rhombi[i][3].x, rhombi[i][3].y);
+        ctx_tc.closePath();
+        ctx_tc.fillStyle=Neptune;
+        ctx_tc.fill();
+    }
+}
+
+function draw_decoration_numeral(s_id,s,pos) {
+    //setup helper vars
+    let size = (s)?1:2/3;
+    let ox = title_canvas.width/3+pos*title_canvas.width/9;
+    let oy = title_canvas.height*2/3+title_canvas.height/25;
+    let tw=title_canvas.width/9;
+    let th=title_canvas.height/3-title_canvas.height/25;
+    let y1=5*th/12-size*5*th/18;
+    let y2=5*th/12+size*5*th/18;
+    let shape=[];
+    let line_w=size*title_canvas.height/28;
+    //create the roman numeral shape to be drawn
+    switch (s_id) {
+        case 0:
+            //I
+            shape.push({
+                xi:tw/2,
+                yi:y1,
+                xf:tw/2,
+                yf:y2
+            });
+            // shape.push({
+            //     xi:tw/2-1.5*tw/6*size,
+            //     yi:y1,
+            //     xf:tw/2+1.5*tw/6*size,
+            //     yf:y1
+            // });
+            // shape.push({
+            //     xi:tw/2-1.5*tw/6*size,
+            //     yi:y2,
+            //     xf:tw/2+1.5*tw/6*size,
+            //     yf:y2
+            // });
+            break;
+        case 1:
+            //II
+            shape.push({
+                xi:tw/2-tw/6*size,
+                yi:y1,
+                xf:tw/2-tw/6*size,
+                yf:y2
+            });
+            shape.push({
+                xi:tw/2+tw/6*size,
+                yi:y1,
+                xf:tw/2+tw/6*size,
+                yf:y2
+            });
+            // shape.push({
+            //     xi:tw/2-2.5*tw/6*size,
+            //     yi:y1,
+            //     xf:tw/2+2.5*tw/6*size,
+            //     yf:y1
+            // });
+            // shape.push({
+            //     xi:tw/2-2.5*tw/6*size,
+            //     yi:y2,
+            //     xf:tw/2+2.5*tw/6*size,
+            //     yf:y2
+            // });
+            break;
+        case 2:
+            //III
+            shape.push({
+                xi:tw/2,
+                yi:y1,
+                xf:tw/2,
+                yf:y2
+            });
+            shape.push({
+                xi:tw/2-tw/4*size,
+                yi:y1,
+                xf:tw/2-tw/4*size,
+                yf:y2
+            });
+            shape.push({
+                xi:tw/2+tw/4*size,
+                yi:y1,
+                xf:tw/2+tw/4*size,
+                yf:y2
+            });
+            // shape.push({
+            //     xi:tw/2-2.8*tw/6*size,
+            //     yi:y1,
+            //     xf:tw/2+2.8*tw/6*size,
+            //     yf:y1
+            // });
+            // shape.push({
+            //     xi:tw/2-2.8*tw/6*size,
+            //     yi:y2,
+            //     xf:tw/2+2.8*tw/6*size,
+            //     yf:y2
+            // });
+            break;
+        case 3:
+            //IV
+            shape.push({
+                xi:tw/2-tw*6/15*size,
+                yi:y1,
+                xf:tw/2-tw*6/15*size,
+                yf:y2
+            });
+            shape.push({
+                xi:tw/2-tw*3/15*size,
+                yi:y1,
+                xf:tw/2+tw/15*size,
+                yf:y2
+            });
+            shape.push({
+                xi:tw/2+tw/15*size,
+                yi:y2,
+                xf:tw/2+5*tw/15*size,
+                yf:y1
+            });
+            // shape.push({
+            //     xi:tw/2-2.8*tw/6*size,
+            //     yi:y1,
+            //     xf:tw/2+2.8*tw/6*size,
+            //     yf:y1
+            // });
+            // shape.push({
+            //     xi:tw/2-2.8*tw/6*size,
+            //     yi:y2,
+            //     xf:tw/2+2.8*tw/6*size,
+            //     yf:y2
+            // });
+            break;
+        case 4:
+            //V
+            shape.push({
+                xi:tw/2-3.5*tw/15*size,
+                yi:y1,
+                xf:tw/2,
+                yf:y2
+            });
+            shape.push({
+                xi:tw/2,
+                yi:y2,
+                xf:tw/2+3.5*tw/15*size,
+                yf:y1
+            });
+            // shape.push({
+            //     xi:tw/2-2.8*tw/6*size,
+            //     yi:th/6*size,
+            //     xf:tw/2+2.8*tw/6*size,
+            //     yf:th/6*size
+            // });
+            // shape.push({
+            //     xi:tw/2-2.8*tw/6*size,
+            //     yi:y2,
+            //     xf:tw/2+2.8*tw/6*size,
+            //     yf:y2
+            // });
+            break;
+                                            
+        default:
+            break;
+    }
+    //stroke all lines in the shape array
+    for (let index = 0; index < shape.length; index++) {
+        ctx_tc.lineWidth=line_w;
+        ctx_tc.beginPath();
+        ctx_tc.moveTo(ox+shape[index].xi, oy+shape[index].yi);
+        ctx_tc.lineTo(ox+shape[index].xf, oy+shape[index].yf);
+        ctx_tc.strokeStyle=Neptune;
+        ctx_tc.stroke();
+    }
+}
+
+function draw_left_arrow(selector_left, clicked=false) {
+    //get canvas size
+    let ow = selector_left.offsetWidth;
+    let w = selector_left.offsetWidth/2.5;
+    let h = selector_left.offsetHeight;
+    let line_w=title_canvas.height/28;
+    //generate shapes
+    let shape_l = [
+        {
+            x:ow,
+            y:0
+        },
+        {
+            x:ow,
+            y:h/4
+        },
+        {
+            x:ow-(w/2),
+            y:h/2
+        },
+        {
+            x:ow,
+            y:3*h/4
+        },
+        {
+            x:ow,
+            y:h
+        },
+        {
+            x:ow-w,
+            y:h/2
+        }
+    ];
+    let shape_s = [
+        {
+            x:ow,
+            y:3*h/8
+        },
+        {
+            x:ow,
+            y:5*h/8
+        },
+        {
+            x:ow-(w/4),
+            y:h/2
+        }
+    ];
+    //if button currently clicked, trace the outside of the shape
+    //if not fill the shape
+    if (clicked) {
+        ctx_lc.lineWidth=line_w;
+        ctx_lc.strokeStyle=Neptune;
+        ctx_lc.beginPath();
+        ctx_lc.moveTo(shape_l[0].x, shape_l[0].y);
+        //stroke all lines in the large shape array
+        for (let index = 1; index < shape_l.length; index++) {
+            ctx_lc.lineTo(shape_l[index].x, shape_l[index].y);
+        }
+        ctx_lc.stroke();
+        ctx_lc.beginPath();
+        ctx_lc.moveTo(shape_s[0].x, shape_s[0].y);
+        //stroke all lines in the small shape array
+        for (let index = 1; index < shape_s.length; index++) {
+            ctx_lc.lineTo(shape_s[index].x, shape_s[index].y);
+        }
+        ctx_lc.stroke();
+    } else {
+        ctx_lc.lineWidth=line_w;
+        ctx_lc.fillStyle=Neptune;
+        ctx_lc.beginPath();
+        ctx_lc.moveTo(shape_l[0].x, shape_l[0].y);
+        //stroke all lines in the large shape array
+        for (let index = 1; index < shape_l.length; index++) {
+            ctx_lc.lineTo(shape_l[index].x, shape_l[index].y);
+        }
+        ctx_lc.closePath();
+        ctx_lc.fill();
+        ctx_lc.beginPath();
+        ctx_lc.moveTo(shape_s[0].x, shape_s[0].y);
+        //stroke all lines in the small shape array
+        for (let index = 1; index < shape_s.length; index++) {
+            ctx_lc.lineTo(shape_s[index].x, shape_s[index].y);
+        }
+        ctx_lc.closePath();
+        ctx_lc.fill();
+    }
+}
+
+function draw_right_arrow(selector_right, clicked=false) {
+    //get canvas size
+    let w = selector_right.offsetWidth/2.5;
+    let h = selector_right.offsetHeight;
+    let line_w=title_canvas.height/28;
+    //generate shapes
+    let shape_l = [
+        {
+            x:0,
+            y:0
+        },
+        {
+            x:0,
+            y:h/4
+        },
+        {
+            x:w/2,
+            y:h/2
+        },
+        {
+            x:0,
+            y:3*h/4
+        },
+        {
+            x:0,
+            y:h
+        },
+        {
+            x:w,
+            y:h/2
+        }
+    ];
+    let shape_s = [
+        {
+            x:0,
+            y:3*h/8
+        },
+        {
+            x:0,
+            y:5*h/8
+        },
+        {
+            x:w/4,
+            y:h/2
+        }
+    ];
+    //if button currently clicked, trace the outside of the shape
+    //if not fill the shape
+    if (clicked) {
+        ctx_rc.lineWidth=line_w;
+        ctx_rc.strokeStyle=Neptune;
+        ctx_rc.beginPath();
+        ctx_rc.moveTo(shape_l[0].x, shape_l[0].y);
+        //stroke all lines in the large shape array
+        for (let index = 1; index < shape_l.length; index++) {
+            ctx_rc.lineTo(shape_l[index].x, shape_l[index].y);
+        }
+        ctx_rc.stroke();
+        ctx_rc.beginPath();
+        ctx_rc.moveTo(shape_s[0].x, shape_s[0].y);
+        //stroke all lines in the small shape array
+        for (let index = 1; index < shape_s.length; index++) {
+            ctx_rc.lineTo(shape_s[index].x, shape_s[index].y);
+        }
+        ctx_rc.stroke();
+    } else {
+        ctx_rc.lineWidth=line_w;
+        ctx_rc.fillStyle=Neptune;
+        ctx_rc.beginPath();
+        ctx_rc.moveTo(shape_l[0].x, shape_l[0].y);
+        //stroke all lines in the large shape array
+        for (let index = 1; index < shape_l.length; index++) {
+            ctx_rc.lineTo(shape_l[index].x, shape_l[index].y);
+        }
+        ctx_rc.closePath();
+        ctx_rc.fill();
+        ctx_rc.beginPath();
+        ctx_rc.moveTo(shape_s[0].x, shape_s[0].y);
+        //stroke all lines in the small shape array
+        for (let index = 1; index < shape_s.length; index++) {
+            ctx_rc.lineTo(shape_s[index].x, shape_s[index].y);
+        }
+        ctx_rc.closePath();
+        ctx_rc.fill();
+    }
+}
+
+function style_project_title(w,h){
+    //get project title element
+    let title = document.getElementById("project_title");
+    //set the title
+    title.innerHTML = document.getElementById("subtitle_invisible_portrait").innerHTML;
+    //initialise styling for the title
+    title.style.position = "absolute";
+    title.style.margin="0px";
+    title.style.padding="0px";
+    title.style.color=Quirinus;
+    //check the lenght of the title
+    if (title.innerHTML.length>8) {
+        //lenght is larger than 8, see if we can divide it
+        let title_array=title.innerHTML.split(/\W/,2);
+        //create two <p> elements
+        title.innerHTML = `<p id="title_line_1">${title_array[0]}</p><p id="title_line_2">${title_array[1]}</p>`;
+        //size, possition and align them separately
+        //give it the proper size so that the text fits
+        let font_size = (title_array[0]<title_array[1])?(w/(1.1*title_array[0].length)):(w/(1.1*title_array[1].length));
+        //also make sure the text does not go over a max size f h/2
+        title.style.fontSize=(font_size<0.5*h)?1.1*font_size+"px":0.5*h+'px'; 
+        //align it properly
+        let t_1 = document.getElementById("title_line_1");
+        let t_2 = document.getElementById("title_line_2")
+        t_1.style.position = "absolute";
+        t_1.style.margin="0px";
+        t_1.style.padding="0px";
+        t_1.style.left=(w/2)-t_1.offsetWidth/2;
+        t_1.style.top=(h/4)-t_1.offsetHeight/2;
+        t_2.style.position = "absolute";
+        t_2.style.margin="0px";
+        t_2.style.padding="0px";
+        t_2.style.left=(w/2)-t_2.offsetWidth/2;
+        t_2.style.top=(3*h/4)-t_2.offsetHeight/2;
+    } else {
+        let font_size = (w/(1.1*title.innerHTML.length));
+        //give it the proper size
+        title.style.fontSize=(font_size<0.6*h)?font_size+"px":0.6*h+'px'; 
+        //align it properly
+        title.style.left=(w/2)-title.offsetWidth/2;
+        title.style.top=(h/2)-title.offsetHeight/2;
+    }
+}
+
+function remove_listeners(){
+    //remove keyboard listeners
+    document.onkeydown=null;
+    //remove touch listeners
+    document.removeEventListener('touchstart', handleTouchStart, false);
+    //document.removeEventListener('touchmove', handleTouchMove, false);
+    document.removeEventListener('touchend', handleTouchEnd, false);
+}
+
+function add_listeners(selector_l,selector_r){
+    //add click listeners
+    selector_l.addEventListener("onmousedown", prev_project);
+    selector_r.addEventListener("onmousedown", next_project);
+    //add keyboard listeners
+    document.onkeydown=(event)=>{
+        switch(event.key){
+            case "ArrowLeft":
+                prev_project();
+                break;
+            case "ArrowRight":
+                next_project();
+                break;
+            default:
+                break;
+        }
+    }
+    //add touch listeners
+    document.addEventListener('touchstart', handleTouchStart, false);
+    //document.addEventListener('touchmove', handleTouchMove, false);
+    document.addEventListener('touchend', handleTouchEnd, false);
+}
+
+function handleTouchStart(evt) {
+    const firstTouch = evt.touches[0];
+    xi = firstTouch.clientX;
+}
+
+function handleTouchEnd(evt) {
+    const lastTouch = evt.touches[0];
+    let xf = lastTouch.clientX;
+
+    if (xi-xf>0) {
+        console.log('Swipe Left');
+    } else {
+        console.log('Swipe Right');
+    }
+    // Reset values or handle end of touch event
+    console.log('Touch ended');
+}
+
+function prev_project() {
+    console.log('Touch ended - L');
+}
+
+function next_project() {
+    console.log('Touch ended - R');
+}
+
 function style_content(){
     //check which content is displayed
     switch (selection_id) {
         case 0:
-            //about content
-            let atext = document.getElementById("about_text");
-            let alinks = document.getElementsByClassName("link_content");
-            //text sizes
-            atext.style.fontSize = div_content_box.offsetHeight/22+"px";
-            //text position
-            atext.style.top=Math.floor((div_content_box.offsetHeight-atext.offsetHeight)/2)+'px';   
-            //text/link colours
-            atext.style.color = Quirinus;
-            for (let index = 0; index < alinks.length; index++) {
-                //normal text colour
-                alinks[index].style.color = Pontus;
-                //change colour on hover
-                alinks[index].addEventListener('mouseover',function(){
-                    alinks[index].style.color = Salacia;
-                 })
-                alinks[index].addEventListener('mouseleave',function(){
+            //check for portrait/landscape
+            if (isLandscape) {
+                //make title invisible
+                document.getElementById("about_title").style.visibility="hidden";
+                //about content
+                let atext = document.getElementById("about_text");
+                let alinks = document.getElementsByClassName("link_content");          
+                //text sizes
+                atext.style.fontSize = div_content_box.offsetHeight/22+"px";
+                //text position
+                atext.style.top=Math.floor((div_content_box.offsetHeight-atext.offsetHeight)/2)+'px';   
+                //text/link colours
+                atext.style.color = Quirinus;
+                for (let index = 0; index < alinks.length; index++) {
+                    //normal text colour
                     alinks[index].style.color = Pontus;
-                 })
+                    //change colour on hover
+                    alinks[index].addEventListener('mouseover',function(){
+                        alinks[index].style.color = Salacia;
+                    })
+                    alinks[index].addEventListener('mouseleave',function(){
+                        alinks[index].style.color = Pontus;
+                    })
+                }
+            } else {
+                //about content
+                let atext = document.getElementById("about_text");
+                let alinks = document.getElementsByClassName("link_content");
+                let atitle = document.getElementById("about_title");
+                atitle.style.visibility='visible';
+                //title size
+                atitle.style.fontSize = div_content_box.offsetHeight/16+"px";
+                //title position
+                atitle.style.top = -1*back_button_canvas_size.h/1.25+'px';
+                atitle.style.left = Math.floor((div_content_box.offsetWidth-back_button_canvas.offsetWidth)/2)+'px';
+                //title colour
+                atitle.style.color = Quirinus;
+                //text sizes
+                atext.style.fontSize = div_content_box.offsetHeight/22+"px";
+                //text position
+                atext.style.height=div_content_box.offsetHeight-back_button_canvas.offsetTop*1.1+'px';
+                atext.style.top=back_button_canvas.offsetTop+'px';
+                atext.style.textAlign='left'; 
+                //text/link colours
+                atext.style.color = Quirinus;
+                for (let index = 0; index < alinks.length; index++) {
+                    //normal text colour
+                    alinks[index].style.color = Pontus;
+                    //change colour on hover
+                    alinks[index].addEventListener('mouseover',function(){
+                        alinks[index].style.color = Salacia;
+                    })
+                    alinks[index].addEventListener('mouseleave',function(){
+                        alinks[index].style.color = Pontus;
+                    })
+                }
             }
+            
             break;
 
         case 1:
-            //projects content
-            //size and pos for selector div "project_selector"
-            let project_selection_div = document.getElementById("project_selector");
-            project_selection_div.style.top="0px";
-            project_selection_div.style.left="0px";
-            project_selection_div.style.width=div_content_box.offsetWidth/4;
-            project_selection_div.style.height=div_content_box.offsetHeight;
-            //iterate throught the project selectors canvases and texts
-            let prject_selector_canvases = document.getElementsByClassName("project_selector_canvas");
-            let project_selector_texts = document.getElementsByClassName("project_selector_text");
-            //calculate the paddin value 
-            let pad = project_selection_div.offsetWidth/64;
-            for (let index = 0; index < prject_selector_canvases.length; index++) {
-                //size up the canvas
-                prject_selector_canvases[index].style.width = project_selection_div.offsetWidth+"px";
-                prject_selector_canvases[index].style.height = project_selection_div.offsetHeight/6+"px";
-                prject_selector_canvases[index].width = project_selection_div.offsetWidth;
-                prject_selector_canvases[index].height = project_selection_div.offsetHeight/6;
-                //possition the canvas
-                let padding=(project_selection_div.offsetHeight-(prject_selector_canvases[index].offsetHeight*prject_selector_canvases.length))/4;
-                prject_selector_canvases[index].style.top = index*(prject_selector_canvases[index].offsetHeight+padding)+"px";
-                prject_selector_canvases[index].style.left = "0px";
-                //size up the text
-                project_selector_texts[index].style.fontSize = prject_selector_canvases[index].offsetHeight/3+"px";
-                //possition the text
-                project_selector_texts[index].style.top = prject_selector_canvases[index].offsetTop+"px";
-                project_selector_texts[index].style.left = prject_selector_canvases[index].offsetLeft+prject_selector_canvases[index].offsetWidth/2-project_selector_texts[index].offsetWidth/2+"px";
-                //set text colour
-                project_selector_texts[index].style.color = Falacer;
-                //check to see if this button is selected
-                if ((index==current_project) && project_displayed) {
-                    //display selected canvas decorations
-                    //calculate the position of the 4 points
+            //check orientation
+            if (isLandscape) {
+                //projects content
+                let project_selection_div = document.getElementById("project_selector");
+                let prject_selector_canvases = document.getElementsByClassName("project_selector_canvas");
+                let project_selector_texts = document.getElementsByClassName("project_selector_text");
+                let project_display_canvas = document.getElementById("project_display");
+                let project_display_text = document.getElementById("project_display_text");
+                //make all portrait-only elements invisible
+                document.getElementById("projects_title").style.visibility="hidden";
+                document.getElementById("selector_bar").style.visibility="hidden";
+                document.getElementById("project_title").style.visibility="hidden";
+                //make all landscape-only elements visible
+                project_selection_div.style.visibility="visible";
+                //size and pos for selector div "project_selector"
+                project_selection_div.style.top="0px";
+                project_selection_div.style.left="0px";
+                project_selection_div.style.width=div_content_box.offsetWidth/4;
+                project_selection_div.style.height=div_content_box.offsetHeight;
+                //calculate the paddin value for the project selector
+                let pad = project_selection_div.offsetWidth/64;
+                //iterate throught the project selector's canvases and texts
+                for (let index = 0; index < prject_selector_canvases.length; index++) {
+                    //size up the canvas
+                    prject_selector_canvases[index].style.width = project_selection_div.offsetWidth+"px";
+                    prject_selector_canvases[index].style.height = project_selection_div.offsetHeight/6+"px";
+                    prject_selector_canvases[index].width = project_selection_div.offsetWidth;
+                    prject_selector_canvases[index].height = project_selection_div.offsetHeight/6;
+                    //possition the canvas
+                    let padding=(project_selection_div.offsetHeight-(prject_selector_canvases[index].offsetHeight*prject_selector_canvases.length))/4;
+                    prject_selector_canvases[index].style.top = index*(prject_selector_canvases[index].offsetHeight+padding)+"px";
+                    prject_selector_canvases[index].style.left = "0px";
+                    //size up the text
+                    project_selector_texts[index].style.fontSize = prject_selector_canvases[index].offsetHeight/3+"px";
+                    //possition the text
+                    project_selector_texts[index].style.top = prject_selector_canvases[index].offsetTop+"px";
+                    project_selector_texts[index].style.left = prject_selector_canvases[index].offsetLeft+prject_selector_canvases[index].offsetWidth/2-project_selector_texts[index].offsetWidth/2+"px";
+                    //set text colour
+                    project_selector_texts[index].style.color = Falacer;
+                    //check to see if this button is selected
+                    if ((index==current_project) && project_displayed) {
+                        //display selected canvas decorations
+                        //calculate the position of the 4 points
+                        let xi = pad;
+                        let xf = prject_selector_canvases[index].offsetWidth+1;
+                        let yi = pad;
+                        let yf = prject_selector_canvases[index].offsetHeight-pad;
+                        //store the Y coords of the points for the display canvas
+                        y_coords={
+                            i:prject_selector_canvases[index].offsetTop+yi,
+                            f:prject_selector_canvases[index].offsetTop+yf+1
+                        };
+                        //draw background
+                        let ctx = prject_selector_canvases[index].getContext("2d");
+                        //draw decoration lines (as a C)
+                        ctx.beginPath();
+                        ctx.lineWidth = pad/2;
+                        ctx.moveTo(xf,yi);
+                        ctx.lineTo(xi,yi);
+                        ctx.lineTo(xi,yf);
+                        ctx.lineTo(xf,yf);
+                        ctx.fillStyle = Furrina; //set the colour of the bg
+                        ctx.fill();
+                        ctx.strokeStyle = Falacer; //set the colour of the lines
+                        ctx.stroke();
+                        //remove all shadows
+                        prject_selector_canvases[index].style.boxShadow = no_shading_project_button; 
+                    } else {
+                        //display unselected canvas decarations
+                        //calculate the position of the 4 ponts
+                        let xi = pad;
+                        let xf = prject_selector_canvases[index].offsetWidth-pad;
+                        let yi = pad;
+                        let yf = prject_selector_canvases[index].offsetHeight-pad;
+                        //draw background
+                        let ctx = prject_selector_canvases[index].getContext("2d");
+                        //draw decaoration lines (as a rectangle)
+                        ctx.beginPath();
+                        ctx.lineWidth = pad/2;
+                        ctx.moveTo(xi,yi);
+                        ctx.lineTo(xf,yi);
+                        ctx.lineTo(xf,yf);
+                        ctx.lineTo(xi,yf);
+                        ctx.lineTo(xi,yi);
+                        ctx.fillStyle = Carmentis; //set the colour of the bg
+                        ctx.fill();
+                        ctx.strokeStyle = Falacer; //set the colour var for the lines
+                        ctx.stroke();
+                        //add shading decarations
+                        prject_selector_canvases[index].style.boxShadow = shading_project_button; 
+                    }
+                }
+                //set the size and pos of the display area
+                project_display_canvas.style.top="0px";
+                project_display_canvas.style.left=div_content_box.offsetWidth/4+"px";
+                project_display_canvas.style.width=3*div_content_box.offsetWidth/4+"px";
+                project_display_canvas.style.height=div_content_box.offsetHeight+"px";
+                project_display_canvas.width=3*div_content_box.offsetWidth/4;
+                project_display_canvas.height=div_content_box.offsetHeight;
+                //set size, pos adn colours of displayed text and titles
+                project_display_text.style.left=div_content_box.offsetWidth/4+"px";
+                project_display_text.style.width=(project_display_canvas.offsetWidth-project_display_canvas.offsetWidth/25)+"px";
+                project_display_text.style.height=(project_display_canvas.offsetHeight-project_display_canvas.offsetHeight/15)+"px";
+                project_display_text.style.top=project_display_canvas.offsetHeight/50+"px";
+                //project_display_text.style.top=-project_display_text.offsetHeight/27+"px"; //for some reason the top possition is always one line down on p  -> just made it into a div instead
+                //padding for the content
+                project_display_text.style.paddingTop=Math.round(project_display_canvas.offsetHeight/50)+"px";
+                project_display_text.style.paddingBottom="0px";
+                project_display_text.style.paddingLeft=Math.round(project_display_canvas.offsetWidth/50)+"px";
+                project_display_text.style.paddingRight=Math.round(project_display_canvas.offsetWidth/50)+"px";
+                
+                //set font size
+
+                //set colours
+
+                //see if a button was clicked, and display appropately
+                if (project_displayed) {
+                    //diplay it as a proper shape fitting the button one
+                    //calculate the position of the 4 ponts
                     let xi = pad;
-                    let xf = prject_selector_canvases[index].offsetWidth+1;
+                    let xf = project_display_canvas.offsetWidth-pad;
                     let yi = pad;
-                    let yf = prject_selector_canvases[index].offsetHeight-pad;
-                    //store the Y coords of the points for the display canvas
-                    y_coords={
-                        i:prject_selector_canvases[index].offsetTop+yi,
-                        f:prject_selector_canvases[index].offsetTop+yf+1
-                    };
+                    let yf = project_display_canvas.offsetHeight-pad;
                     //draw background
-                    let ctx = prject_selector_canvases[index].getContext("2d");
-                    //draw decoration lines (as a C)
+                    let ctx = project_display_canvas.getContext("2d");
+                    //draw decaoration lines (selected)
                     ctx.beginPath();
                     ctx.lineWidth = pad/2;
-                    ctx.moveTo(xf,yi);
+                    ctx.moveTo(0,y_coords.i);
+                    ctx.lineTo(xi,y_coords.i);
                     ctx.lineTo(xi,yi);
-                    ctx.lineTo(xi,yf);
+                    ctx.lineTo(xf,yi);
                     ctx.lineTo(xf,yf);
+                    ctx.lineTo(xi,yf);
+                    ctx.lineTo(xi,y_coords.f);
+                    ctx.lineTo(0,y_coords.f);
                     ctx.fillStyle = Furrina; //set the colour of the bg
                     ctx.fill();
                     ctx.strokeStyle = Falacer; //set the colour of the lines
                     ctx.stroke();
-                    //remove all shadows
-                    prject_selector_canvases[index].style.boxShadow = no_shading_project_button; 
                 } else {
-                    //display unselected canvas decarations
+                    //display decorations as a rectangle 
                     //calculate the position of the 4 ponts
                     let xi = pad;
-                    let xf = prject_selector_canvases[index].offsetWidth-pad;
+                    let xf = project_display_canvas.offsetWidth-pad;
                     let yi = pad;
-                    let yf = prject_selector_canvases[index].offsetHeight-pad;
+                    let yf = project_display_canvas.offsetHeight-pad;
                     //draw background
-                    let ctx = prject_selector_canvases[index].getContext("2d");
+                    let ctx = project_display_canvas.getContext("2d");
                     //draw decaoration lines (as a rectangle)
                     ctx.beginPath();
                     ctx.lineWidth = pad/2;
@@ -1740,142 +3299,217 @@ function style_content(){
                     ctx.lineTo(xf,yf);
                     ctx.lineTo(xi,yf);
                     ctx.lineTo(xi,yi);
-                    ctx.fillStyle = Carmentis; //set the colour of the bg
+                    ctx.fillStyle = Furrina; //set the colour of the bg
                     ctx.fill();
-                    ctx.strokeStyle = Falacer; //set the colour var for the lines
+                    ctx.strokeStyle = Falacer; //set the colour of the lines
                     ctx.stroke();
-                    //add shading decarations
-                    prject_selector_canvases[index].style.boxShadow = shading_project_button; 
                 }
-            }
-            //set the size and pos of the display area
-            let project_display_canvas = document.getElementById("project_display");
-            project_display_canvas.style.top="0px";
-            project_display_canvas.style.left=div_content_box.offsetWidth/4+"px";
-            project_display_canvas.style.width=3*div_content_box.offsetWidth/4+"px";
-            project_display_canvas.style.height=div_content_box.offsetHeight+"px";
-            project_display_canvas.width=3*div_content_box.offsetWidth/4;
-            project_display_canvas.height=div_content_box.offsetHeight;
-            //set size, pos adn colours of displayed text and titles
-            let project_display_text = document.getElementById("project_display_text");
-            project_display_text.style.left=div_content_box.offsetWidth/4+"px";
-            project_display_text.style.width=(project_display_canvas.offsetWidth-project_display_canvas.offsetWidth/25)+"px";
-            project_display_text.style.height=(project_display_canvas.offsetHeight-project_display_canvas.offsetHeight/15)+"px";
-            project_display_text.style.top=project_display_canvas.offsetHeight/50+"px";
-            //project_display_text.style.top=-project_display_text.offsetHeight/27+"px"; //for some reason the top possition is always one line down on p  -> just made it into a div instead
-            //padding for the content
-            project_display_text.style.paddingTop=Math.round(project_display_canvas.offsetHeight/50)+"px";
-            project_display_text.style.paddingBottom="0px";
-            project_display_text.style.paddingLeft=Math.round(project_display_canvas.offsetWidth/50)+"px";
-            project_display_text.style.paddingRight=Math.round(project_display_canvas.offsetWidth/50)+"px";
-            
 
-            //set font size
-
-            //set colours
-
-
-            //make sure the overflow scrollbar is properly styled
-
-            //see if a button was clicked, and display appropately
-            if (project_displayed) {
-                //diplay it as a proper shape fitting the button one
-                //calculate the position of the 4 ponts
-                let xi = pad;
-                let xf = project_display_canvas.offsetWidth-pad;
-                let yi = pad;
-                let yf = project_display_canvas.offsetHeight-pad;
-                //draw background
-                let ctx = project_display_canvas.getContext("2d");
-                //draw decaoration lines (selected)
-                ctx.beginPath();
-                ctx.lineWidth = pad/2;
-                ctx.moveTo(0,y_coords.i);
-                ctx.lineTo(xi,y_coords.i);
-                ctx.lineTo(xi,yi);
-                ctx.lineTo(xf,yi);
-                ctx.lineTo(xf,yf);
-                ctx.lineTo(xi,yf);
-                ctx.lineTo(xi,y_coords.f);
-                ctx.lineTo(0,y_coords.f);
-                ctx.fillStyle = Furrina; //set the colour of the bg
-                ctx.fill();
-                ctx.strokeStyle = Falacer; //set the colour of the lines
-                ctx.stroke();
+                //
+                if(project_displayed){initial_project_show();}
             } else {
-                //display decorations as a rectangle 
-                //calculate the position of the 4 ponts
-                let xi = pad;
-                let xf = project_display_canvas.offsetWidth-pad;
-                let yi = pad;
-                let yf = project_display_canvas.offsetHeight-pad;
-                //draw background
-                let ctx = project_display_canvas.getContext("2d");
-                //draw decaoration lines (as a rectangle)
-                ctx.beginPath();
-                ctx.lineWidth = pad/2;
-                ctx.moveTo(xi,yi);
-                ctx.lineTo(xf,yi);
-                ctx.lineTo(xf,yf);
-                ctx.lineTo(xi,yf);
-                ctx.lineTo(xi,yi);
-                ctx.fillStyle = Furrina; //set the colour of the bg
-                ctx.fill();
-                ctx.strokeStyle = Falacer; //set the colour of the lines
-                ctx.stroke();
+                //portrait mode
+                let ptitle = document.getElementById("projects_title");
+                let selector_bar = document.getElementById("selector_bar");
+                let selector_left = document.getElementById("select_left");
+                let selector_right = document.getElementById("select_right");
+                title_canvas = document.getElementById("title_canvas");
+                let project_title = document.getElementById("project_title");
+                let title_container = document.getElementById("project_title_container");
+                //make all landscape-only elemetns invisible
+                document.getElementById("project_selector").style.visibility="hidden";
+                //make all portrait-only elements visible
+                ptitle.style.visibility="visible";
+                selector_bar.style.visibility="visible";
+                title_container.style.visibility="visible";
+                project_title.style.visibility="visible";
+                //if no selection, assign one
+                if (current_project==null) {
+                    current_project=0;
+                    project_displayed=true;
+                }
+                //title size
+                ptitle.style.fontSize = div_content_box.offsetHeight/16+"px";
+                //title position
+                //ptitle.style.position="absolute";                                                          //maybe
+                ptitle.style.top = -1*back_button_canvas_size.h/1.25+'px';
+                ptitle.style.left = Math.floor((div_content_box.offsetWidth-back_button_canvas.offsetWidth)/2)+'px';
+                //title colour
+                ptitle.style.color = Quirinus;
+                //style the portrait selector bar
+                selector_bar.style.position="absolute";
+                selector_bar.style.top=ptitle.offsetTop+1.5*ptitle.offsetHeight+"px";
+                selector_bar.style.height=1.5*ptitle.offsetHeight+'px';
+                selector_bar.style.width=selector_bar.offsetHeight*3+'px'
+                selector_bar.style.left=(div_content_box.offsetWidth-selector_bar.offsetWidth)/2-decoration_canvas_size.h/60+"px";  //decoration_canvas_size.h/60 is half the padding for the decoration
+
+                //size and pos for the title canvas
+                title_canvas.style.position="absolute";
+                title_canvas.style.top="0px";
+                title_canvas.style.height=selector_bar.offsetHeight+'px';
+                title_canvas.style.width=selector_bar.offsetWidth*3/5+'px'
+                title_canvas.style.left=selector_bar.offsetWidth/5+"px";
+                title_canvas.style.zIndex="299";
+                title_canvas.height = Math.floor(selector_bar.offsetHeight);
+                title_canvas.width = Math.floor(selector_bar.offsetWidth*3/5);
+                ctx_tc=title_canvas.getContext("2d");
+                draw_title_decor();
+                //size and pos the title container
+                title_container.style.position="relative";
+                title_container.style.top="0px";
+                title_container.style.height=title_canvas.offsetHeight*2/3+'px';
+                title_container.style.width=title_canvas.offsetWidth+'px'
+                title_container.style.left=selector_bar.offsetWidth/5+"px";
+                title_container.style.zIndex="300";
+                //size and pos for the left selector canvas
+                selector_left.style.position="absolute";
+                selector_left.style.top=selector_bar.offsetHeight/16+'px';//"0px";
+                selector_left.style.height=selector_bar.offsetHeight/2+'px';
+                selector_left.style.width=selector_bar.offsetWidth/5+'px'
+                selector_left.style.left="0px";
+                selector_left.style.zIndex="299";
+                selector_left.height = Math.floor(selector_left.offsetHeight);
+                selector_left.width = Math.floor(selector_bar.offsetWidth/5);
+                ctx_lc=selector_left.getContext("2d");
+                //draw decoration
+                draw_left_arrow(selector_left);
+                //size and pos for the right selector canvas
+                selector_right.style.position="absolute";
+                selector_right.style.top=selector_bar.offsetHeight/16+'px';//"0px";
+                selector_right.style.height=selector_bar.offsetHeight/2+'px';
+                selector_right.style.width=selector_bar.offsetWidth/5+'px'
+                selector_right.style.left=selector_bar.offsetWidth-selector_right.offsetWidth+"px";
+                selector_right.style.zIndex="299";
+                selector_right.height = Math.floor(selector_right.offsetHeight);
+                selector_right.width = Math.floor(selector_bar.offsetWidth/5);
+                ctx_rc=selector_right.getContext("2d");
+                //draw decoration
+                draw_right_arrow(selector_right);
+                //assign all listeners
+                add_listeners(selector_left,selector_right);
+                
+                //possition the content box for the project text
+                let project_display_text = document.getElementById("project_display_text");
+                project_display_text.style.left="0px";div_content_box.offsetWidth/12+"px";
+                project_display_text.style.width=(div_content_box.offsetWidth*19/20)+"px";
+                project_display_text.style.height=div_content_box.offsetHeight-selector_bar.offsetHeight*2+"px";
+                project_display_text.style.top=selector_bar.offsetTop+selector_bar.offsetHeight*5/4+"px";
+                //padding for the content
+                project_display_text.style.paddingLeft=Math.round(project_display_text.offsetWidth/50)+"px";
+                project_display_text.style.paddingRight=Math.round(project_display_text.offsetWidth/50)+"px"; 
+                
+                //check if project already selected and display it
+                if(project_displayed){initial_project_show();}
+                //style the title
+                style_project_title(title_container.offsetWidth,title_container.offsetHeight);         
             }
-
-            //
-            if(project_displayed){initial_project_show();}
-
             break;
 
         case 2:
-            //contact content
-            //about content
-            let ctext = document.getElementById("contact_text");
-            let clinks = document.getElementsByClassName("link_content");
-            let clink_imgs = document.getElementsByClassName("logos");
-            let image_size = Math.floor(div_content_box.offsetHeight/20)+"px";
-            //text sizes
-            ctext.style.fontSize = div_content_box.offsetHeight/16+"px";
-            //text position
-            ctext.style.top=Math.floor((div_content_box.offsetHeight-ctext.offsetHeight)/2)+'px';   
-            //text/link colours
-            ctext.style.color = Quirinus;
-            for (let index = 0; index < clinks.length; index++) {
-                //normal text colour
-                clinks[index].style.color = Pontus;
-                //set the correct image at the start
-                if (mode) {
-                    clink_imgs[index].src=image_gallery[index].lux_dark;
-                } else {
-                    clink_imgs[index].src=image_gallery[index].nox;
-                }
-                //change colour on hover
-                clinks[index].addEventListener('mouseover',function(){
-                    //text
-                    clinks[index].style.color = Salacia;
-                    //image
-                    if (mode) {
-                        clink_imgs[index].src=image_gallery[index].lux_light;
-                    } else {
-                        clink_imgs[index].src=image_gallery[index].nox;             //keep this just in case we want to change to colour of hovered links later?
-                    }
-                });
-                clinks[index].addEventListener('mouseleave',function(){
-                    //text
+            //check orientation
+            if (isLandscape) {
+                //make title invisible
+                document.getElementById("contact_title").style.visibility="hidden";
+                //contact content
+                let ctext = document.getElementById("contact_text");
+                let clinks = document.getElementsByClassName("link_content");
+                let clink_imgs = document.getElementsByClassName("logos");
+                let image_size = Math.floor(div_content_box.offsetHeight/20)+"px";
+                //text sizes
+                ctext.style.fontSize = div_content_box.offsetHeight/16+"px";
+                //text position
+                ctext.style.top=Math.floor((div_content_box.offsetHeight-ctext.offsetHeight)/2)+'px';   
+                //text/link colours
+                ctext.style.color = Quirinus;
+                for (let index = 0; index < clinks.length; index++) {
+                    //normal text colour
                     clinks[index].style.color = Pontus;
-                    //image
+                    //set the correct image at the start
                     if (mode) {
                         clink_imgs[index].src=image_gallery[index].lux_dark;
                     } else {
-                        clink_imgs[index].src=image_gallery[index].nox;             //keep this just in case we want to change to colour of hovered links later?
+                        clink_imgs[index].src=image_gallery[index].nox;
                     }
-                });
-                //make images the correct size
-                clink_imgs[index].style.height=image_size;
+                    //change colour on hover
+                    clinks[index].addEventListener('mouseover',function(){
+                        //text
+                        clinks[index].style.color = Salacia;
+                        //image
+                        if (mode) {
+                            clink_imgs[index].src=image_gallery[index].lux_light;
+                        } else {
+                            clink_imgs[index].src=image_gallery[index].nox;             //keep this just in case we want to change to colour of hovered links later?
+                        }
+                    });
+                    clinks[index].addEventListener('mouseleave',function(){
+                        //text
+                        clinks[index].style.color = Pontus;
+                        //image
+                        if (mode) {
+                            clink_imgs[index].src=image_gallery[index].lux_dark;
+                        } else {
+                            clink_imgs[index].src=image_gallery[index].nox;             //keep this just in case we want to change to colour of hovered links later?
+                        }
+                    });
+                    //make images the correct size
+                    clink_imgs[index].style.height=image_size;
+                }
+            } else {
+                //contact content
+                let ctitle = document.getElementById("contact_title");
+                let ctext = document.getElementById("contact_text");
+                let clinks = document.getElementsByClassName("link_content");
+                let clink_imgs = document.getElementsByClassName("logos");
+                let image_size = Math.floor(div_content_box.offsetHeight/20)+"px";
+                ctitle.style.visibility='visible';
+                //title size
+                ctitle.style.fontSize = div_content_box.offsetHeight/16+"px";
+                //title position
+                ctitle.style.top = -1*back_button_canvas_size.h/1.25+'px';
+                ctitle.style.left = Math.floor((div_content_box.offsetWidth-back_button_canvas.offsetWidth)/2)+'px';
+                //title colour
+                ctitle.style.color = Quirinus;
+                //text sizes
+                ctext.style.fontSize = div_content_box.offsetWidth/12+"px";
+                //text position
+                ctext.style.top=Math.floor((div_content_box.offsetHeight-ctext.offsetHeight)/2)+'px';   
+                //text/link colours
+                ctext.style.color = Quirinus;
+                for (let index = 0; index < clinks.length; index++) {
+                    //normal text colour
+                    clinks[index].style.color = Pontus;
+                    //set the correct image at the start
+                    if (mode) {
+                        clink_imgs[index].src=image_gallery[index].lux_dark;
+                    } else {
+                        clink_imgs[index].src=image_gallery[index].nox;
+                    }
+                    //change colour on hover
+                    clinks[index].addEventListener('mouseover',function(){
+                        //text
+                        clinks[index].style.color = Salacia;
+                        //image
+                        if (mode) {
+                            clink_imgs[index].src=image_gallery[index].lux_light;
+                        } else {
+                            clink_imgs[index].src=image_gallery[index].nox;             //keep this just in case we want to change to colour of hovered links later?
+                        }
+                    });
+                    clinks[index].addEventListener('mouseleave',function(){
+                        //text
+                        clinks[index].style.color = Pontus;
+                        //image
+                        if (mode) {
+                            clink_imgs[index].src=image_gallery[index].lux_dark;
+                        } else {
+                            clink_imgs[index].src=image_gallery[index].nox;             //keep this just in case we want to change to colour of hovered links later?
+                        }
+                    });
+                    //make images the correct size
+                    clink_imgs[index].style.height=image_size;
+                }
             }
+            
             break;
 
         default:
@@ -2175,17 +3809,21 @@ function initial_project_show(){
     //set teh correct content
     project_display_text.innerHTML = project_content[current_project];
     //set text size and colours
-    let text_headers = document.getElementsByClassName("subtitle");
-    for (let index = 0; index < text_headers.length; index++) {
-        text_headers[index].style.color = Portunus;
-        text_headers[index].style.fontSize = (project_display_text.offsetHeight/15)+"px";
-        
+    //check for landscaper/portrait modes
+    if (isLandscape) {
+        let text_headers = document.getElementsByClassName("subtitle");
+        for (let index = 0; index < text_headers.length; index++) {
+            text_headers[index].style.color = Portunus;
+            text_headers[index].style.fontSize = (project_display_text.offsetHeight/15)+"px";
+        }
+    } else {
+        document.getElementById("subtitle_invisible_portrait").style.visibility="hidden";
+        document.getElementById("subtitle_invisible_portrait").style.fontSize="0px";
     }
     let text_paragraphs = document.getElementsByClassName("paragraph");
     for (let index = 0; index < text_paragraphs.length; index++) {
         text_paragraphs[index].style.color = Palatua;
         text_paragraphs[index].style.fontSize = (project_display_text.offsetHeight/25)+"px";
-        
     }
     let text_links = document.getElementsByClassName("link");
     for (let index = 0; index < text_links.length; index++) {
@@ -2203,6 +3841,10 @@ function initial_project_show(){
     }
     //set its visibility
     project_display_text.style.visibility="visible";
+    //do not show subtitle in portrait mode
+    if(!isLandscape){ 
+        
+    }
 }
 
 function animate() {
@@ -2214,6 +3856,16 @@ function animate() {
             break;
         case "main_cont_out":
             animation_main_container_closing();
+            break;
+        case "main_cont_in_p":
+            max_frames=30;
+            step=nav_bar.offsetWidth/max_frames;
+            animation_main_container_opening_p();
+            break;
+         case "main_cont_out_p":
+            max_frames=30;
+            step=nav_bar.offsetWidth/max_frames;
+            animation_main_container_closing_p();
             break;
 
         default:
@@ -3399,11 +5051,11 @@ function animation_main_container_opening() {
                 animation_counter++;
             } else {
                 //final keyframe
-                animation_on=false;
-                keyframe=0;
-                animation_counter=0;
-                max_frames=0;
-                animation=null;
+                //animation_on=false;
+                // keyframe=0;
+                // animation_counter=0;
+                // max_frames=0;
+                // animation=null;
                 //call for the fade in of the content
                 fade_in_container_content();
             }
@@ -3432,12 +5084,12 @@ function animation_main_container_opening() {
 
             break;
 
-        //keyframe 4
+        //keyframe 4 (not needed anymore)
         //set all canvas elements where they should be at the end, store them in memory, exit the animation function
         case 4:
             //set all canvas vars as the "show main container open" vars
             //set the ending for the animation
-            animation_on=false;
+            //animation_on=false;
             keyframe = 0;
             break;
 
@@ -4045,3 +5697,147 @@ function draw_decoration_canvas_opened(){
     ctx_bg.strokeStyle=Diana;
     ctx_bg.stroke();
 }
+
+function animation_main_container_opening_p() {
+    switch (keyframe) {
+        //nav bar moves left
+        case 0:
+            //set up the first max frame counter
+            //max_frames=40;
+            //current frame check
+            if (animation_counter<max_frames) {
+                //increment animation counter
+                animation_counter++;
+                //move navbar left
+                nav_bar.style.left=nav_bar.offsetLeft-step+'px';
+            } else {
+                //set up next animation keyframe
+                keyframe=1;
+                animation_counter=0;
+                //max_frames=40;
+            }
+            break;
+
+        //content container & back button move right
+        case 1:
+            //current frame check
+            if (main_decoration_canvas.offsetLeft+step<0) {
+                //increment animation counter
+                animation_counter++;
+                //move elements right
+                main_decoration_canvas.style.left=main_decoration_canvas.offsetLeft+step+'px';
+                //back_button.style.left=main_decoration_canvas.offsetLeft+'px';
+                back_button_canvas.style.left=main_decoration_canvas.offsetLeft+'px';
+            } else {
+                //finalize animation
+                //move elements right
+                main_decoration_canvas.style.left='0px';
+                //back_button.style.left='0px';
+                back_button_canvas.style.left='0px';
+                //set up next animation keyframe
+                keyframe=2;
+                animation_counter=0;
+                max_frames=40;
+            }
+            break;
+
+        //fade in the content
+        case 2:
+            //final keyframe
+            // animation_on=false;
+            keyframe=0;
+            // animation_counter=0;
+            // max_frames=0;
+            // animation=null;
+            //call for the fade in of the content
+            fade_in_container_content();
+
+        default:
+            // animation_on=false;
+            // keyframe=0;
+            // animation_counter=0;
+            // max_frames=0;
+            // animation=null;
+            break;
+    }
+}
+
+function animation_main_container_closing_p() {
+    switch (keyframe) {
+        //change all nav buttons to the default state & fade out the content
+        case 0:
+            //draw the button decorations as 'initial' (this does not work since the canvas is offscreen while doing it?)
+            //so we'll just not change the buttons
+            //shold not be an issue on since portrait mode is for phones and tablets anyway
+            // for (let index = 0; index < nav_button_decorations.length; index++) {
+            //     //draw the decorations
+            //     decoration_start_p(nav_button_decorations[index], Venus);
+            // }    
+            //in order to properly syncronize the fade-out animation and the rest of the movements
+            //I will use a variable 'faded' that has 3 states: 0 (not faded), 1 (faded out), 2 (in the process of fading)
+            //this way the animation can proceed only after we are done fading out the content
+            if (faded==1) {
+                //content faded out, proceed to hte next keyframe
+                keyframe=1;
+                faded=0;
+            } else if (faded==0) {
+                //set var as 'in the process of fading out'
+                faded=2;
+                //fade out content
+                fade_out_container_content();
+            }
+            break;
+
+        //move the contianer and back buttons left
+        case 1:
+            //current frame check
+            if (main_decoration_canvas.offsetLeft-step>-1*main_decoration_canvas.offsetWidth) {
+                //move elements left
+                main_decoration_canvas.style.left=main_decoration_canvas.offsetLeft-step+'px';
+                //back_button.style.left=main_decoration_canvas.offsetLeft+'px';
+                back_button_canvas.style.left=main_decoration_canvas.offsetLeft+'px';
+            } else {
+                //finalize animation
+                //move elements right
+                main_decoration_canvas.style.left=-1*main_decoration_canvas.offsetWidth+'px';
+                //back_button.style.left='0px';
+                back_button_canvas.style.left=main_decoration_canvas.offsetLeft+'px';
+                //set up next animation keyframe
+                keyframe=2;
+                animation_counter=0;
+                max_frames=40;
+            }
+            break;
+
+        //nav bar moves right
+        case 2:
+            //check current navbar position
+            if (nav_bar.offsetLeft+step<0) {
+                //move navbar left
+                nav_bar.style.left=nav_bar.offsetLeft+step+'px';
+            } else {
+                nav_bar.style.left='0px';
+                //set up next animation keyframe
+                keyframe=3;
+            }
+            break;
+
+        //fade in the content
+        case 3:
+            //final keyframe
+            animation_on=false;
+            keyframe=0;
+            animation_counter=0;
+            max_frames=0;
+            animation=null;
+
+        default:
+            animation_on=false;
+            keyframe=0;
+            animation_counter=0;
+            max_frames=0;
+            animation=null;
+            break;
+    }
+}
+

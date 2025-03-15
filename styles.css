@@ -72,6 +72,11 @@ a:active {
     visibility: hidden;
 }
 
+#back_button_canvas{
+    z-index: 112;
+    background-image: "";
+}
+
 #nav_bar {
     z-index: 3;
     visibility: hidden;
@@ -141,10 +146,23 @@ a:active {
 
 #about_text{
     position: relative;
+    overflow-Y: scroll;
+    overflow-wrap: break-word;
 }
 
 #contact_text{
     position: relative;
+}
+
+.text_title {
+    font-variant-caps: small-caps;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    position: absolute;
 }
 
 .text_content{
@@ -221,4 +239,15 @@ a:active {
 
 .link {
     font-weight: bold;
+}
+
+#project_title{
+    font-family: Trajan;
+    font-weight: bold;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
